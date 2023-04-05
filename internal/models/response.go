@@ -27,6 +27,6 @@ type ResponseFavorites struct {
 }
 
 type ResponseTop struct {
-	Status int           `json:"status"`
-	Top    [5]Profession `json:"professions"`
+	Status int          `json:"status"`
+	Top    []Profession `json:"professions"`
 }
