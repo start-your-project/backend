@@ -32,7 +32,7 @@ func (s *Service) GetTechnologies(ctx context.Context, data *proto.SearchText) (
 	return &proto.TechnologiesArr{Technology: nil}, nil
 }
 
-func (s *Service) GetTop(ctx context.Context) (*proto.PositionTop, error) {
+func (s *Service) GetTop(ctx context.Context, empty *proto.Empty) (*proto.PositionTop, error) {
 	positions, err := s.storage.GetTop()
 	if err != nil {
 		return &proto.PositionTop{Position: nil}, err
