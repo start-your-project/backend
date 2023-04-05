@@ -17,7 +17,3 @@ type PositionData struct {
 type Profession struct {
 	Profession string `json:"profession"`
 }
-
-//type TopPosition struct {
-//	Professions []Profession `json:"professions"`
-//}
