@@ -11,15 +11,26 @@ message SearchText {
 }
 
 message Technology {
-  string Name = 2;
-  float Distance = 3;
-  float Professionalism = 4;
+  string Name = 1;
+  float Distance = 2;
+  float Professionalism = 3;
 }
 
 message TechnologiesArr {
   repeated Technology Technology = 1;
 }
 
+message Position {
+  string Name = 1;
+}
+
+message PositionTop {
+  repeated Position Position = 1;
+}
+
+message Empty { }
+
 service Search {
   rpc GetTechnologies(SearchText) returns(TechnologiesArr) {}
+  rpc GetTop(Empty) returns(PositionTop) {}
 }

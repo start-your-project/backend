@@ -36,6 +36,13 @@ func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, e
 		technologies = append(technologies, &technology)
 	}
 
+	sqlScript = "UPDATE position SET requests_count = requests_count + 1 WHERE name = $1"
+
+	_, err = s.db.Exec(sqlScript, data.Text)
+	if err != nil {
+		return nil, err
+	}
+
 	return technologies, nil
 }
 
@@ -62,4 +69,29 @@ func (s Storage) IsPositionExists(data *proto.SearchText) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s Storage) GetTop() ([]*proto.Position, error) {
+	sqlScript := "SELECT name FROM position ORDER BY requests_count DESC LIMIT 5"
+
+	positions := make([]*proto.Position, 5)
+
+	rows, err := s.db.Query(sqlScript)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
+
+	for rows.Next() {
+		var position proto.Position
+		if err = rows.Scan(&position.Name); err != nil {
+			return nil, err
+		}
+		positions = append(positions, &position)
+	}
+
+	return positions, nil
 }
