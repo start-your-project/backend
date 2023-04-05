@@ -74,7 +74,7 @@ func (s Storage) IsPositionExists(data *proto.SearchText) (bool, error) {
 func (s Storage) GetTop() ([]*proto.Position, error) {
 	sqlScript := "SELECT name FROM position ORDER BY requests_count DESC LIMIT 5"
 
-	positions := make([]*proto.Position, 5)
+	positions := make([]*proto.Position, 0)
 
 	rows, err := s.db.Query(sqlScript)
 	if err != nil {
