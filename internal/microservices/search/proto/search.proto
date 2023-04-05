@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "/";
+
+//protoc --go_out=. --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=. *.proto
+
+package search;
+
+message SearchText {
+  string Text = 1;
+}
+
+message Technology {
+  string Name = 2;
+  float Distance = 3;
+  float Professionalism = 4;
+}
+
+message TechnologiesArr {
+  repeated Technology Technology = 1;
+}
+
+service Search {
+  rpc GetTechnologies(SearchText) returns(TechnologiesArr) {}
+}
