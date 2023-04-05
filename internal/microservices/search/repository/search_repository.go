@@ -15,7 +15,7 @@ func NewStorage(db *sql.DB) *Storage {
 }
 
 func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, error) {
-	sqlScript := "SELECT technology_name, distance, professionalism FROM technology_position WHERE position_name=$1"
+	sqlScript := "SELECT name_technology, distance, professionalism FROM technology_position WHERE name_position=$1"
 
 	technologies := make([]*proto.Technology, 0)
 

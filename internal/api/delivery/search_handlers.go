@@ -92,7 +92,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 
 		if technologies.Technology != nil {
 			positionResult := models.PositionData{
-				JobName:          singleRequestForm,
+				JobName:          profession.Profession,
 				TechnologyNumber: len(technologies.Technology),
 				Additional:       make([]models.Technology, 0),
 			}

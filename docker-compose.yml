@@ -52,10 +52,10 @@ services:
       dockerfile: ./cmd/auth/Dockerfile
     restart: always
     links:
-      - postgres:postgres
+#      - postgres:postgres
       - redis:redis
     depends_on:
-      - postgres
+#      - postgres
       - redis
     ports:
       - "5555:5555"
