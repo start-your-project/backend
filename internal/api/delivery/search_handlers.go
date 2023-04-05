@@ -164,13 +164,13 @@ func (a *searchHandler) GetTop() echo.HandlerFunc {
 		}
 
 		positionResult := models.ResponseTop{
-			Top: [5]models.Profession{},
+			Top: make([]models.Profession, 0),
 		}
 
-		for i, position := range positions.Position {
-			positionResult.Top[i] = models.Profession{
+		for _, position := range positions.Position {
+			positionResult.Top = append(positionResult.Top, models.Profession{
 				Profession: position.Name,
-			}
+			})
 		}
 
 		positionResult.Status = http.StatusOK
