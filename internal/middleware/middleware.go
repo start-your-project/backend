@@ -92,7 +92,7 @@ func (m Middleware) CORS() echo.MiddlewareFunc {
 	return middleware.CORSWithConfig(middleware.CORSConfig{
 		UnsafeWildcardOriginWithAllowCredentials: false,
 		Skipper:                                  nil,
-		AllowOrigins:                             []string{"http://job-roadmap.ru:3001", "http://localhost:3001", "http://job-roadmap.ru", "https://job-roadmap.ru", "http://37.139.41.200:3001"},
+		AllowOrigins:                             []string{"http://job-roadmap.ru:3001", "http://localhost:3001", "http://job-roadmap.ru", "https://job-roadmap.ru", os.Getenv("HOST_FRONT")},
 		AllowOriginFunc:                          nil,
 		AllowMethods:                             nil,
 		AllowHeaders:                             []string{"Accept", "Cache-Control", "Content-Type", "X-Requested-With", "csrf-token"},
