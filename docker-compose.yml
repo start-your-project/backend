@@ -47,7 +47,7 @@ services:
     volumes:
       - minio_data:/data
   auth:
-    image: backend/auth:latest
+    image: vor0lga/auth:latest
     build:
       context: .
       dockerfile: ./cmd/auth/Dockerfile
@@ -61,7 +61,7 @@ services:
     ports:
       - "5555:5555"
   search:
-    image: backend/search:latest
+    image: vor0lga/search:latest
     build:
       context: .
       dockerfile: ./cmd/search/Dockerfile
@@ -73,7 +73,7 @@ services:
     ports:
       - "8888:8888"
   profile:
-    image: backend/profile:latest
+    image: vor0lga/profile:latest
     build:
       context: .
       dockerfile: ./cmd/profile/Dockerfile
@@ -87,7 +87,7 @@ services:
     ports:
       - "6666:6666"
   main:
-    image: backend/main:latest
+    image: vor0lga/main:latest
     build:
       context: .
       dockerfile: ./cmd/main/Dockerfile
