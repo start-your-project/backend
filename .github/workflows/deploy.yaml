@@ -1,0 +1,153 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linter:
+    name: Run linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.18.x'
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run linter
+        run: |
+          # binary will be $(go env GOPATH)/bin/golangci-lint
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.2
+          $(go env GOPATH)/bin/golangci-lint run
+  build:
+    needs: linter
+    name: Build Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create env file
+        run: touch .env;
+          echo DBHOST=${{ secrets.DBHOST }} >> .env;
+          echo DBPORT=${{ secrets.DBPORT }} >> .env;
+          echo DBUSER=${{ secrets.DBUSER }} >> .env;
+          echo DBPASSWORD=${{ secrets.DBPASSWORD }} >> .env;
+          echo DBNAME=${{ secrets.DBNAME }} >> .env;
+          echo REDISHOST=${{ secrets.REDISHOST }} >> .env;
+          echo REDISPORT=${{ secrets.REDISPORT }} >> .env;
+          echo REDISPROTOCOL=${{ secrets.REDISPROTOCOL }} >> .env;
+          echo MINIOURL=${{ secrets.MINIOURL }} >> .env;
+          echo MINIOUSER=${{ secrets.MINIOUSER }} >> .env;
+          echo MINIOPASSWORD=${{ secrets.MINIOPASSWORD }} >> .env;
+          echo CSRF_SECRET=${{ secrets.CSRF_SECRET }} >> .env;
+          echo AUTH_HOST=${{ secrets.AUTH_HOST }} >> .env;
+          echo AUTH_PORT=${{ secrets.AUTH_PORT }} >> .env;
+          echo HOST=${{ secrets.HOST }} >> .env;
+          echo PROFILE_HOST=${{ secrets.PROFILE_HOST }} >> .env;
+          echo PROFILE_PORT=${{ secrets.PROFILE_PORT }} >> .env;
+          echo SEARCH_HOST=${{ secrets.SEARCH_HOST }} >> .env;
+          echo SEARCH_PORT=${{ secrets.SEARCH_PORT }} >> .env;
+          echo EMAILPASSWORD=${{ secrets.EMAILPASSWORD }} >> .env;
+          echo HOST_MINIO=${{ secrets.HOST_MINIO }} >> .env;
+          echo HOST_SEARCH=${{ secrets.HOST_SEARCH }} >> .env;
+          echo HOST_TECHNOLOGIES=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
+          echo HOST_FRONT=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
+          cat .env;
+          chmod 666 .env;
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push authorization
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./cmd/auth/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: vor0lga/auth:latest
+      - name: Build and push profile
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./cmd/profile/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: vor0lga/profile:latest
+      - name: Build and push search
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./cmd/search/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: vor0lga/search:latest
+      - name: Build and push main
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./cmd/main/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: vor0lga/main:latest
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            rm -rf .env
+            git pull origin main
+            touch .env;
+            echo DBHOST=${{ secrets.DBHOST }} >> .env;
+            echo DBPORT=${{ secrets.DBPORT }} >> .env;
+            echo DBUSER=${{ secrets.DBUSER }} >> .env;
+            echo DBPASSWORD=${{ secrets.DBPASSWORD }} >> .env;
+            echo DBNAME=${{ secrets.DBNAME }} >> .env;
+            echo REDISHOST=${{ secrets.REDISHOST }} >> .env;
+            echo REDISPORT=${{ secrets.REDISPORT }} >> .env;
+            echo REDISPROTOCOL=${{ secrets.REDISPROTOCOL }} >> .env;
+            echo MINIOURL=${{ secrets.MINIOURL }} >> .env;
+            echo MINIOUSER=${{ secrets.MINIOUSER }} >> .env;
+            echo MINIOPASSWORD=${{ secrets.MINIOPASSWORD }} >> .env;
+            echo CSRF_SECRET=${{ secrets.CSRF_SECRET }} >> .env;
+            echo AUTH_HOST=${{ secrets.AUTH_HOST }} >> .env;
+            echo AUTH_PORT=${{ secrets.AUTH_PORT }} >> .env;
+            echo HOST=${{ secrets.HOST }} >> .env;
+            echo PROFILE_HOST=${{ secrets.PROFILE_HOST }} >> .env;
+            echo PROFILE_PORT=${{ secrets.PROFILE_PORT }} >> .env;
+            echo SEARCH_HOST=${{ secrets.SEARCH_HOST }} >> .env;
+            echo SEARCH_PORT=${{ secrets.SEARCH_PORT }} >> .env;
+            echo EMAILPASSWORD=${{ secrets.EMAILPASSWORD }} >> .env;
+            echo HOST_MINIO=${{ secrets.HOST_MINIO }} >> .env;
+            echo HOST_SEARCH=${{ secrets.HOST_SEARCH }} >> .env;
+            echo HOST_TECHNOLOGIES=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
+            echo HOST_FRONT=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
+            cat .env;
+            chmod 666 .env;
+            echo "Pull new image"
+            sudo docker-compose -f docker-compose.yml pull
+            echo "Restart the container"
+            sudo docker-compose -f docker-compose.yml up --force-recreate --build --no-deps -d
+            echo "Delete old image"
+            docker image prune -f
+          
+

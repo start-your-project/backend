@@ -13,7 +13,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         id serial constraint position_pk primary key,
         name varchar(250) not null,
         count_technologies int,
-        requests_count int
+        requests_count int,
+        fast_prediction bool,
+        prediction_dttm timestamp
+
     );
 
     create unique index position_uindex
@@ -24,7 +27,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
       CREATE TABLE IF NOT EXISTS technology
       (
           id serial constraint technology_pk primary key,
-          name varchar(250) not null
+          name varchar(250) not null,
+          hard_skill bool
       );
 
       create unique index technology_uindex

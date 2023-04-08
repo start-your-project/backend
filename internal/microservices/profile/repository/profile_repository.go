@@ -226,7 +226,7 @@ func (s Storage) GetFavorites(userID int64) ([]*proto.Favorite, error) {
 		"COUNT(ut.id_technology) AS count_finished FROM position " +
 		"JOIN user_position ON user_position.id_user = $1 AND user_position.id_position = position.id " +
 		"JOIN technology_position tp ON position.id = tp.id_position " +
-		"JOIN user_technology ut ON tp.id_technology = ut.id_technology " +
+		"LEFT JOIN user_technology ut ON tp.id_technology = ut.id_technology " +
 		"GROUP BY position.id;"
 
 	favorites := make([]*proto.Favorite, 0)

@@ -30,6 +30,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.TopPosition, a.GetTop())
 }
 
+// nolint:cyclop
 func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		_, ok := ctx.Get("REQUEST_ID").(string)
@@ -59,17 +60,17 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 		scanner.Scan()
 		singleRequestForm := scanner.Text()
 
-		profession := &models.Profession{}
+		profession := &models.Profession{Profession: ""}
 		err = easyjson.Unmarshal([]byte(singleRequestForm), profession)
 		if err != nil {
 			a.logger.Error(
 				zap.String("ERROR", err.Error()),
 				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
-			resp, err := easyjson.Marshal(&models.Response{
+			resp, errMarshal := easyjson.Marshal(&models.Response{
 				Status:  http.StatusInternalServerError,
 				Message: err.Error(),
 			})
-			if err != nil {
+			if errMarshal != nil {
 				return ctx.NoContent(http.StatusInternalServerError)
 			}
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
@@ -105,11 +106,11 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 				})
 			}
 
-			resp, err := easyjson.Marshal(&models.ResponseTechnologies{
+			resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 				Status:       http.StatusOK,
 				PositionData: positionResult,
 			})
-			if err != nil {
+			if errMarshal != nil {
 				return ctx.NoContent(http.StatusInternalServerError)
 			}
 			return ctx.JSONBlob(http.StatusOK, resp)
@@ -164,7 +165,8 @@ func (a *searchHandler) GetTop() echo.HandlerFunc {
 		}
 
 		positionResult := models.ResponseTop{
-			Top: make([]models.Profession, 0),
+			Status: http.StatusOK,
+			Top:    make([]models.Profession, 0),
 		}
 
 		for _, position := range positions.Position {
