@@ -113,6 +113,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            git pull origin main
             touch .env;
             echo DBHOST=${{ secrets.DBHOST }} >> .env;
             echo DBPORT=${{ secrets.DBPORT }} >> .env;
