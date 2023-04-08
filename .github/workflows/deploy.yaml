@@ -73,7 +73,7 @@ jobs:
           file: ./cmd/auth/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: backend/auth:latest
+          tags: vor0lga/auth:latest
       - name: Build and push profile
         uses: docker/build-push-action@v2
         with:
@@ -81,7 +81,7 @@ jobs:
           file: ./cmd/profile/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: backend/profile:latest
+          tags: vor0lga/profile:latest
       - name: Build and push search
         uses: docker/build-push-action@v2
         with:
@@ -89,7 +89,7 @@ jobs:
           file: ./cmd/search/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: backend/search:latest
+          tags: vor0lga/search:latest
       - name: Build and push main
         uses: docker/build-push-action@v2
         with:
@@ -97,7 +97,7 @@ jobs:
           file: ./cmd/main/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: backend/main:latest
+          tags: vor0lga/main:latest
   deploy:
     needs: build
     name: Deploy
@@ -146,15 +146,5 @@ jobs:
             sudo docker-compose -f docker-compose.yml up --force-recreate --build --no-deps -d
             echo "Delete old image"
             docker image prune -f
-      - name: Pull docker images
-        run : |
-          sudo docker-compose -f docker-compose.yml pull
-      - name: Run docker-compose
-        run : |
-          sudo docker-compose -f docker-compose.yml up --renew-anon-volumes --build -d
-      - name: Clear old images and containers
-        run : |
-          sudo docker container prune
-          sudo docker image prune
           
 
