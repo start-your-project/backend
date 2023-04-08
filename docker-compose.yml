@@ -112,6 +112,7 @@ services:
     restart: always
     depends_on:
       - minio
+      - main
     volumes:
       - ./nginx:/etc/nginx/conf.d
     ports:
