@@ -24,3 +24,8 @@ type ResponseTop struct {
 	Status int          `json:"status"`
 	Top    []Profession `json:"professions"`
 }
+
+type ResponseProfessions struct {
+	Status      int      `json:"status"`
+	Professions []string `json:"professions"`
+}

@@ -214,9 +214,25 @@ func (a *searchHandler) Recommendation() echo.HandlerFunc {
 		scanner.Scan()
 		singleRequestForm := scanner.Text()
 
-		resp, errMarshal := easyjson.Marshal(&models.Response{
-			Status:  http.StatusOK,
-			Message: singleRequestForm,
+		professions := &models.Professions{Profession: make([]string, 0)}
+		err = easyjson.Unmarshal([]byte(singleRequestForm), professions)
+		if err != nil {
+			a.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		resp, errMarshal := easyjson.Marshal(&models.ResponseProfessions{
+			Status:      http.StatusOK,
+			Professions: professions.Profession,
 		})
 		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)

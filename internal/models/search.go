@@ -17,3 +17,8 @@ type PositionData struct {
 type Profession struct {
 	Profession string `json:"profession"`
 }
+
+//easyjson:json
+type Professions struct {
+	Profession []string `json:"professions"`
+}
