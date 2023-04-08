@@ -104,3 +104,16 @@ services:
       - profile
     ports:
       - "1323:1323"
+  nginx:
+    image: nginx:latest
+    links:
+      - main:main
+      - minio:minio
+    restart: always
+    depends_on:
+      - minio
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
