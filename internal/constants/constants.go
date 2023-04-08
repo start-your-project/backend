@@ -52,6 +52,7 @@ const (
 	RemoveLikeURL   = "/api/v1/dislike"
 	LikesURL        = "/api/v1/likes"
 	TopPosition     = "/api/v1/top"
+	Recommendation  = "/api/v1/recommend"
 )
 
 var (

@@ -28,6 +28,7 @@ func NewSearchHandler(logger *zap.SugaredLogger, search search.SearchClient) *se
 func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.GetTechnologies, a.GetTechnologies())
 	router.GET(constants.TopPosition, a.GetTop())
+	router.GET(constants.Recommendation, a.Recommendation())
 }
 
 // nolint:cyclop
@@ -178,6 +179,46 @@ func (a *searchHandler) GetTop() echo.HandlerFunc {
 		positionResult.Status = http.StatusOK
 		resp, err := easyjson.Marshal(&positionResult)
 		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+func (a *searchHandler) Recommendation() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		_, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			a.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		searchText := ctx.QueryParam("search_text")
+
+		res, err := http.Get(os.Getenv("HOST_RECOMMEND") + searchText)
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		defer res.Body.Close()
+
+		scanner := bufio.NewScanner(res.Body)
+		scanner.Scan()
+		singleRequestForm := scanner.Text()
+
+		resp, errMarshal := easyjson.Marshal(&models.Response{
+			Status:  http.StatusOK,
+			Message: singleRequestForm,
+		})
+		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
 		return ctx.JSONBlob(http.StatusOK, resp)
