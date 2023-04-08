@@ -47,19 +47,21 @@ services:
     volumes:
       - minio_data:/data
   auth:
+    image: backend/auth:latest
     build:
       context: .
       dockerfile: ./cmd/auth/Dockerfile
     restart: always
     links:
-#      - postgres:postgres
+      - postgres:postgres
       - redis:redis
     depends_on:
-#      - postgres
+      - postgres
       - redis
     ports:
       - "5555:5555"
   search:
+    image: backend/search:latest
     build:
       context: .
       dockerfile: ./cmd/search/Dockerfile
@@ -71,6 +73,7 @@ services:
     ports:
       - "8888:8888"
   profile:
+    image: backend/profile:latest
     build:
       context: .
       dockerfile: ./cmd/profile/Dockerfile
@@ -84,6 +87,7 @@ services:
     ports:
       - "6666:6666"
   main:
+    image: backend/main:latest
     build:
       context: .
       dockerfile: ./cmd/main/Dockerfile
