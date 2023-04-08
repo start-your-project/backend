@@ -27,6 +27,7 @@ func NewSearchHandler(logger *zap.SugaredLogger, search search.SearchClient) *se
 
 func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.GetTechnologies, a.GetTechnologies())
+	router.GET(constants.TopPosition, a.GetTop())
 }
 
 func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
@@ -92,7 +93,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 
 		if technologies.Technology != nil {
 			positionResult := models.PositionData{
-				JobName:          singleRequestForm,
+				JobName:          profession.Profession,
 				TechnologyNumber: len(technologies.Technology),
 				Additional:       make([]models.Technology, 0),
 			}
@@ -127,5 +128,56 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
 		return ctx.JSONBlob(http.StatusOK, []byte(positionResult))
+	}
+}
+
+func (a *searchHandler) GetTop() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		_, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			a.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		positions, err := a.searchMicroservice.GetTop(context.Background(), &search.Empty{})
+		if err != nil {
+			a.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		positionResult := models.ResponseTop{
+			Top: make([]models.Profession, 0),
+		}
+
+		for _, position := range positions.Position {
+			positionResult.Top = append(positionResult.Top, models.Profession{
+				Profession: position.Name,
+			})
+		}
+
+		positionResult.Status = http.StatusOK
+		resp, err := easyjson.Marshal(&positionResult)
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
 	}
 }

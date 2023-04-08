@@ -30,34 +30,13 @@ func (s *Service) GetTechnologies(ctx context.Context, data *proto.SearchText) (
 	}
 
 	return &proto.TechnologiesArr{Technology: nil}, nil
+}
 
-	//jsonFile, err := os.Open("test1.json")
-	//if err != nil {
-	//	return &proto.TechnologiesArr{Technology: nil}, err
-	//}
-	//defer func(jsonFile *os.File) {
-	//	err = jsonFile.Close()
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}(jsonFile)
-	//
-	//byteValue, _ := ioutil.ReadAll(jsonFile)
-	//
-	//var technologies models.JSONData
-	//err = json.Unmarshal(byteValue, &technologies)
-	//if err != nil {
-	//	return &proto.TechnologiesArr{Technology: nil}, err
-	//}
-	//
-	//res := proto.TechnologiesArr{Technology: nil}
-	//for _, technology := range technologies.Additional {
-	//	res.Technology = append(res.Technology, &proto.Technology{
-	//		Name:            technology.TechnologyName,
-	//		Distance:        technology.Distance,
-	//		Professionalism: technology.Professionalism,
-	//	})
-	//}
-	//
-	//return &res, nil
+func (s *Service) GetTop(ctx context.Context, empty *proto.Empty) (*proto.PositionTop, error) {
+	positions, err := s.storage.GetTop()
+	if err != nil {
+		return &proto.PositionTop{Position: nil}, err
+	}
+
+	return &proto.PositionTop{Position: positions}, nil
 }
