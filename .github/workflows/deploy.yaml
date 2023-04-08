@@ -57,6 +57,7 @@ jobs:
           echo HOST_SEARCH=${{ secrets.HOST_SEARCH }} >> .env;
           echo HOST_TECHNOLOGIES=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
           echo HOST_FRONT=${{ secrets.HOST_FRONT }} >> .env;
+          echo HOST_RECOMMEND=${{ secrets.HOST_RECOMMEND }} >> .env;
           cat .env;
           chmod 666 .env;
       - name: Set up Docker Buildx
@@ -141,6 +142,7 @@ jobs:
             echo HOST_SEARCH=${{ secrets.HOST_SEARCH }} >> .env;
             echo HOST_TECHNOLOGIES=${{ secrets.HOST_TECHNOLOGIES }} >> .env;
             echo HOST_FRONT=${{ secrets.HOST_FRONT }} >> .env;
+            echo HOST_RECOMMEND=${{ secrets.HOST_RECOMMEND }} >> .env;
             cat .env;
             chmod 666 .env;
             echo "Pull new image"
