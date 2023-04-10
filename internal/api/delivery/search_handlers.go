@@ -29,6 +29,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.GetTechnologies, a.GetTechnologies())
 	router.GET(constants.TopPosition, a.GetTop())
 	router.GET(constants.Recommendation, a.Recommendation())
+	router.GET(constants.Professions, a.Professions())
 }
 
 // nolint:cyclop
@@ -238,5 +239,81 @@ func (a *searchHandler) Recommendation() echo.HandlerFunc {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
 		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+func (a *searchHandler) Professions() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		requestID, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			a.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		techs := models.SearchTechs{SearchText: ""}
+		if err := ctx.Bind(&techs); err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError),
+			)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		res, err := http.Get(os.Getenv("HOST_PROFESSIONS") + techs.SearchText)
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		defer res.Body.Close()
+
+		scanner := bufio.NewScanner(res.Body)
+		scanner.Scan()
+		respProfessions := scanner.Text()
+
+		professions := &models.RespProfessions{
+			Techs:      "",
+			JobNumber:  0,
+			Additional: make([]models.RespProfession, 0),
+		}
+		err = easyjson.Unmarshal([]byte(respProfessions), professions)
+		if err != nil {
+			a.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		resp, errMarshal := easyjson.Marshal(&models.ResponseProfessionsWithTechnology{
+			Status:      http.StatusOK,
+			Professions: professions,
+		})
+		if errMarshal != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+
 	}
 }

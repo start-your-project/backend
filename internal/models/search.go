@@ -22,3 +22,18 @@ type Profession struct {
 type Professions struct {
 	Profession []string `json:"professions"`
 }
+type RespProfessions struct {
+	Techs      string           `json:"techs"`
+	JobNumber  int              `json:"job_number"`
+	Additional []RespProfession `json:"additional"`
+}
+
+type RespProfession struct {
+	JobName string `json:"job_name"`
+	Percent int    `json:"percent"`
+}
+
+//easyjson:json
+type SearchTechs struct {
+	SearchText string `json:"search_text"`
+}

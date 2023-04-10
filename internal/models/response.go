@@ -29,3 +29,8 @@ type ResponseProfessions struct {
 	Status      int      `json:"status"`
 	Professions []string `json:"professions"`
 }
+
+type ResponseProfessionsWithTechnology struct {
+	Status      int              `json:"status"`
+	Professions *RespProfessions `json:"professions"`
+}

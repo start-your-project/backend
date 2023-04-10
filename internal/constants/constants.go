@@ -53,6 +53,7 @@ const (
 	LikesURL        = "/api/v1/likes"
 	TopPosition     = "/api/v1/top"
 	Recommendation  = "/api/v1/recommend"
+	Professions     = "/api/v1/professions"
 )
 
 var (
