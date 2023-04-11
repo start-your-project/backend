@@ -25,3 +25,13 @@ type Favorite struct {
 	CountAll      int64  `json:"count_all" form:"count_all"`
 	CountFinished int64  `json:"count_finished" form:"count_finished"`
 }
+
+type Recommend struct {
+	Profession string   `json:"profession" form:"profession"`
+	Simularity float64  `json:"simularity" form:"simularity"`
+	Learned    []string `json:"learned" form:"learned"`
+	ToLearn    []string `json:"to_learn" form:"to_learn"`
+}
+
+type ResumeData struct {
+}

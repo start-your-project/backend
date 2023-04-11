@@ -7,6 +7,7 @@ import (
 	search "main/internal/microservices/search/proto"
 	"main/internal/models"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -120,17 +121,47 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 
 		res, err = http.Get(os.Getenv("HOST_TECHNOLOGIES") + profession.Profession)
 		if err != nil {
-			return ctx.NoContent(http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 		defer res.Body.Close()
 
 		scanner = bufio.NewScanner(res.Body)
 		scanner.Scan()
-		positionResult := scanner.Text()
+		positionRes := scanner.Text()
+
+		positionResult := models.PositionData{
+			JobName:          profession.Profession,
+			TechnologyNumber: 0,
+			Additional:       make([]models.Technology, 0),
+		}
+
+		err = positionResult.UnmarshalJSON([]byte(positionRes))
 		if err != nil {
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
+			Status:       http.StatusOK,
+			PositionData: positionResult,
+		})
+		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
-		return ctx.JSONBlob(http.StatusOK, []byte(positionResult))
+		return ctx.JSONBlob(http.StatusOK, resp)
 	}
 }
 
@@ -275,8 +306,7 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			}
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
-
-		res, err := http.Get(os.Getenv("HOST_PROFESSIONS") + techs.SearchText)
+		res, err := http.Get(os.Getenv("HOST_PROFESSIONS") + url.QueryEscape(techs.SearchText))
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
@@ -291,6 +321,7 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			JobNumber:  0,
 			Additional: make([]models.RespProfession, 0),
 		}
+
 		err = easyjson.Unmarshal([]byte(respProfessions), professions)
 		if err != nil {
 			a.logger.Error(

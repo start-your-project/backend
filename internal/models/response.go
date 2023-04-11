@@ -34,3 +34,7 @@ type ResponseProfessionsWithTechnology struct {
 	Status      int              `json:"status"`
 	Professions *RespProfessions `json:"professions"`
 }
+type ResponseResume struct {
+	Status    int         `json:"status"`
+	Recommend []Recommend `json:"recommend"`
+}

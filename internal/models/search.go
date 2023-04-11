@@ -35,5 +35,5 @@ type RespProfession struct {
 
 //easyjson:json
 type SearchTechs struct {
-	SearchText string `json:"search_text"`
+	SearchText string `json:"search_text" form:"search_text"`
 }

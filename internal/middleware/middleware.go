@@ -6,8 +6,8 @@ import (
 	auth "main/internal/microservices/auth/proto"
 	"main/internal/models"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/labstack/echo/v4"

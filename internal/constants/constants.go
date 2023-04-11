@@ -54,6 +54,7 @@ const (
 	TopPosition     = "/api/v1/top"
 	Recommendation  = "/api/v1/recommend"
 	Professions     = "/api/v1/professions"
+	Resume          = "/api/v1/resume"
 )
 
 var (
