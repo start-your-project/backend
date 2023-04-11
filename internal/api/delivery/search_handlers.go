@@ -30,7 +30,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.GetTechnologies, a.GetTechnologies())
 	router.GET(constants.TopPosition, a.GetTop())
 	router.GET(constants.Recommendation, a.Recommendation())
-	router.GET(constants.Professions, a.Professions())
+	router.POST(constants.Professions, a.Professions())
 }
 
 // nolint:cyclop
