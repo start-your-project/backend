@@ -148,7 +148,7 @@ jobs:
             echo HOST_RECOMMEND=${{ secrets.HOST_RECOMMEND }} >> .env;
             echo HOST_PROFESSIONS=${{ secrets.HOST_PROFESSIONS }} >> .env;
             echo PDF_API_KEY=${{ secrets.PDF_API_KEY }} >> .env;
-            echo HOST_PROFESSIONS=${{ secrets.HOST_RESUME }} >> .env;
+            echo HOST_RESUME=${{ secrets.HOST_RESUME }} >> .env;
             cat .env;
             chmod 666 .env;
             echo "Pull new image"
