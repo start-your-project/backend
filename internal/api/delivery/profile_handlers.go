@@ -524,7 +524,8 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		p.logger.Info(json)
+		p.logger.Info(string(json))
+		p.logger.Info(os.Getenv("HOST_RESUME"))
 		//nolint:bodyclose
 		response, err := http.Post(os.Getenv("HOST_RESUME"), "application/json", bytes.NewBuffer(json))
 		defer func(Body io.ReadCloser) {
