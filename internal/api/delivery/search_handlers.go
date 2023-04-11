@@ -306,6 +306,9 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			}
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
+
+		a.logger.Info(techs.SearchText)
+		a.logger.Info(os.Getenv("HOST_PROFESSIONS") + url.QueryEscape(techs.SearchText))
 		res, err := http.Get(os.Getenv("HOST_PROFESSIONS") + url.QueryEscape(techs.SearchText))
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
@@ -315,6 +318,8 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 		scanner := bufio.NewScanner(res.Body)
 		scanner.Scan()
 		respProfessions := scanner.Text()
+
+		a.logger.Info(respProfessions)
 
 		professions := &models.RespProfessions{
 			Techs:      "",
@@ -337,6 +342,7 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
+		a.logger.Info(professions)
 		resp, errMarshal := easyjson.Marshal(&models.ResponseProfessionsWithTechnology{
 			Status:      http.StatusOK,
 			Professions: professions,
