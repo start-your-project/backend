@@ -459,13 +459,13 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
-		req := &models.ResumeRequest{
+		req := models.ResumeRequest{
 			CvText: "",
 			NTech:  10,
 			NProf:  7,
 		}
 
-		if err := ctx.Bind(req); err != nil {
+		if err := ctx.Bind(&req); err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusBadRequest)
 		}
 
@@ -524,8 +524,6 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		p.logger.Info(string(json))
-		p.logger.Info(os.Getenv("HOST_RESUME"))
 		//nolint:bodyclose
 		response, err := http.Post(os.Getenv("HOST_RESUME"), "application/json", bytes.NewBuffer(json))
 		defer func(Body io.ReadCloser) {
@@ -542,10 +540,6 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 		if err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
-
-		p.logger.Info(body)
-
-		p.logger.Info(response.Status)
 
 		if response.Status != "200 OK" {
 			return constants.RespError(ctx, p.logger, requestID, "status is not 200", http.StatusInternalServerError)
