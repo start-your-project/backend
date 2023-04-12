@@ -1,7 +1,7 @@
 package models
 
 type Technology struct {
-	TechnologyName  string  `json:"technology_name"`
+	TechnologyName  string  `json:"technology_name" form:"technology_name"`
 	Distance        float32 `json:"distance"`
 	Professionalism float32 `json:"professionalism"`
 }
