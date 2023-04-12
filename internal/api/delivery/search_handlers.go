@@ -31,6 +31,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.GET(constants.TopPosition, a.GetTop())
 	router.GET(constants.Recommendation, a.Recommendation())
 	router.POST(constants.Professions, a.Professions())
+	router.POST(constants.GetProfessions, a.GetProfessions())
 }
 
 // nolint:cyclop
@@ -347,5 +348,88 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 		}
 		return ctx.JSONBlob(http.StatusOK, resp)
 
+	}
+}
+
+func (a *searchHandler) GetProfessions() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		requestID, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			a.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		technology := models.Technology{TechnologyName: ""}
+		if err := ctx.Bind(&technology); err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError),
+			)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		data := search.GetTechnology{Name: technology.TechnologyName}
+
+		positions, err := a.searchMicroservice.GetPositions(context.Background(), &data)
+		if err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		positionResult := models.ResponseTop{
+			Status: http.StatusOK,
+			Top:    make([]models.Profession, 0),
+		}
+
+		for _, position := range positions.Position {
+			positionResult.Top = append(positionResult.Top, models.Profession{
+				Profession: position.Name,
+			})
+		}
+
+		positionResult.Status = http.StatusOK
+		resp, err := easyjson.Marshal(&positionResult)
+		if err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			res, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, res)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
 	}
 }

@@ -40,3 +40,12 @@ func (s *Service) GetTop(ctx context.Context, empty *proto.Empty) (*proto.Positi
 
 	return &proto.PositionTop{Position: positions}, nil
 }
+
+func (s *Service) GetPositions(ctx context.Context, data *proto.GetTechnology) (*proto.PositionTop, error) {
+	positions, err := s.storage.GetPositions(data)
+	if err != nil {
+		return &proto.PositionTop{Position: nil}, err
+	}
+
+	return &proto.PositionTop{Position: positions}, nil
+}

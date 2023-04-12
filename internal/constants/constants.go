@@ -54,6 +54,7 @@ const (
 	TopPosition     = "/api/v1/top"
 	Recommendation  = "/api/v1/recommend"
 	Professions     = "/api/v1/professions"
+	GetProfessions  = "/api/v1/list"
 	Resume          = "/api/v1/resume"
 )
 

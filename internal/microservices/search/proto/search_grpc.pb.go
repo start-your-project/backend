@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SearchClient interface {
 	GetTechnologies(ctx context.Context, in *SearchText, opts ...grpc.CallOption) (*TechnologiesArr, error)
 	GetTop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PositionTop, error)
+	GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*PositionTop, error)
 }
 
 type searchClient struct {
@@ -52,12 +53,22 @@ func (c *searchClient) GetTop(ctx context.Context, in *Empty, opts ...grpc.CallO
 	return out, nil
 }
 
+func (c *searchClient) GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*PositionTop, error) {
+	out := new(PositionTop)
+	err := c.cc.Invoke(ctx, "/search.Search/GetPositions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SearchServer is the server API for Search service.
 // All implementations should embed UnimplementedSearchServer
 // for forward compatibility
 type SearchServer interface {
 	GetTechnologies(context.Context, *SearchText) (*TechnologiesArr, error)
 	GetTop(context.Context, *Empty) (*PositionTop, error)
+	GetPositions(context.Context, *GetTechnology) (*PositionTop, error)
 }
 
 // UnimplementedSearchServer should be embedded to have forward compatible implementations.
@@ -69,6 +80,9 @@ func (UnimplementedSearchServer) GetTechnologies(context.Context, *SearchText) (
 }
 func (UnimplementedSearchServer) GetTop(context.Context, *Empty) (*PositionTop, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTop not implemented")
+}
+func (UnimplementedSearchServer) GetPositions(context.Context, *GetTechnology) (*PositionTop, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPositions not implemented")
 }
 
 // UnsafeSearchServer may be embedded to opt out of forward compatibility for this service.
@@ -118,6 +132,24 @@ func _Search_GetTop_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Search_GetPositions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTechnology)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServer).GetPositions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/search.Search/GetPositions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServer).GetPositions(ctx, req.(*GetTechnology))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Search_ServiceDesc is the grpc.ServiceDesc for Search service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,6 +164,10 @@ var Search_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTop",
 			Handler:    _Search_GetTop_Handler,
+		},
+		{
+			MethodName: "GetPositions",
+			Handler:    _Search_GetPositions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

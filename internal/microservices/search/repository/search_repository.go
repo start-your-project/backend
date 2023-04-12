@@ -95,3 +95,28 @@ func (s Storage) GetTop() ([]*proto.Position, error) {
 
 	return positions, nil
 }
+
+func (s Storage) GetPositions(data *proto.GetTechnology) ([]*proto.Position, error) {
+	sqlScript := "SELECT name_position FROM technology_position WHERE name_technology=$1 ORDER BY distance DESC"
+
+	positions := make([]*proto.Position, 0)
+
+	rows, err := s.db.Query(sqlScript, data.Name)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
+
+	for rows.Next() {
+		var position proto.Position
+		if err = rows.Scan(&position.Name); err != nil {
+			return nil, err
+		}
+		positions = append(positions, &position)
+	}
+
+	return positions, nil
+}
