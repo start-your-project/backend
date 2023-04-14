@@ -155,9 +155,9 @@ jobs:
             cat .env;
             chmod 666 .env;
             echo "Pull new image"
-            docker-compose -f docker-compose.yml pull
+            sudo docker-compose -f docker-compose.yml pull
             echo "Restart the container"
-            docker-compose -f docker-compose.yml up --force-recreate --build --no-deps -d
+            sudo docker-compose -f docker-compose.yml up --force-recreate --build --no-deps -d
             echo "Delete old image"
             docker image prune -f
           
