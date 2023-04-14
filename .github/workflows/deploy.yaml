@@ -159,6 +159,6 @@ jobs:
             echo "Restart the container"
             sudo docker-compose -f docker-compose.yml up --force-recreate --build --no-deps -d
             echo "Delete old image"
-            docker image prune -f
+            sudo docker image prune -f
           
 
