@@ -120,9 +120,9 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             sudo su
-            rm -rf .env
+            sudo rm -rf .env
             sudo git pull origin main
-            touch .env;
+            sudo touch .env;
             echo DBHOST=${{ secrets.DBHOST }} >> .env;
             echo DBPORT=${{ secrets.DBPORT }} >> .env;
             echo DBUSER=${{ secrets.DBUSER }} >> .env;
