@@ -251,3 +251,49 @@ func (s Storage) GetFavorites(userID int64) ([]*proto.Favorite, error) {
 
 	return favorites, nil
 }
+
+func (s Storage) Finish(data *proto.LikeData) error {
+	sqlScript := "INSERT INTO user_technology(id_user, id_technology) VALUES($1, (SELECT id FROM technology WHERE name = $2))"
+
+	if _, err := s.db.Exec(sqlScript, data.UserID, data.PositionName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s Storage) Cancel(data *proto.LikeData) error {
+	sqlScript := "DELETE FROM user_technology WHERE id_user=$1 AND id_technology=(SELECT id FROM technology WHERE name = $2)"
+
+	if _, err := s.db.Exec(sqlScript, data.UserID, data.PositionName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s Storage) GetFinished(data *proto.LikeData) ([]string, error) {
+	sqlScript := "SELECT name_technology FROM technology_position JOIN user_technology ut ON technology_position.id_technology = ut.id_technology AND ut.id_user=$1 AND name_position=$2"
+
+	finished := make([]string, 0)
+
+	rows, err := s.db.Query(sqlScript, data.UserID, data.PositionName)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		_ = rows.Err()
+		_ = rows.Close()
+	}()
+
+	for rows.Next() {
+		var technology string
+		if err = rows.Scan(&technology); err != nil {
+			return nil, err
+		}
+		finished = append(finished, technology)
+	}
+
+	return finished, nil
+}

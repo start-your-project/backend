@@ -97,3 +97,76 @@ func (v *ResumeRequest) UnmarshalJSON(data []byte) error {
 func (v *ResumeRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3c9d2b01DecodeMainInternalModels(l, v)
 }
+func easyjson3c9d2b01DecodeMainInternalModels1(in *jlexer.Lexer, out *LetterRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "resume":
+			out.Resume = string(in.String())
+		case "vacancy":
+			out.Vacancy = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson3c9d2b01EncodeMainInternalModels1(out *jwriter.Writer, in LetterRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"resume\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Resume))
+	}
+	{
+		const prefix string = ",\"vacancy\":"
+		out.RawString(prefix)
+		out.String(string(in.Vacancy))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v LetterRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson3c9d2b01EncodeMainInternalModels1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v LetterRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson3c9d2b01EncodeMainInternalModels1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *LetterRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson3c9d2b01DecodeMainInternalModels1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *LetterRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson3c9d2b01DecodeMainInternalModels1(l, v)
+}

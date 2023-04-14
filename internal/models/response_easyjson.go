@@ -46,7 +46,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels(in *jlexer.Lexer, out *ResponseUse
 				if out.UserData == nil {
 					out.UserData = new(ProfileUserDTO)
 				}
-				easyjson6ff3ac1dDecodeMainInternalModels1(in, out.UserData)
+				(*out.UserData).UnmarshalEasyJSON(in)
 			}
 		default:
 			in.SkipRecursive()
@@ -73,7 +73,7 @@ func easyjson6ff3ac1dEncodeMainInternalModels(out *jwriter.Writer, in ResponseUs
 		if in.UserData == nil {
 			out.RawString("null")
 		} else {
-			easyjson6ff3ac1dEncodeMainInternalModels1(out, *in.UserData)
+			(*in.UserData).MarshalEasyJSON(out)
 		}
 	}
 	out.RawByte('}')
@@ -102,63 +102,7 @@ func (v *ResponseUserProfile) UnmarshalJSON(data []byte) error {
 func (v *ResponseUserProfile) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6ff3ac1dDecodeMainInternalModels(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels1(in *jlexer.Lexer, out *ProfileUserDTO) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "username":
-			out.Name = string(in.String())
-		case "email":
-			out.Email = string(in.String())
-		case "avatar":
-			out.Avatar = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson6ff3ac1dEncodeMainInternalModels1(out *jwriter.Writer, in ProfileUserDTO) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"username\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.Name))
-	}
-	{
-		const prefix string = ",\"email\":"
-		out.RawString(prefix)
-		out.String(string(in.Email))
-	}
-	{
-		const prefix string = ",\"avatar\":"
-		out.RawString(prefix)
-		out.String(string(in.Avatar))
-	}
-	out.RawByte('}')
-}
-func easyjson6ff3ac1dDecodeMainInternalModels2(in *jlexer.Lexer, out *ResponseTop) {
+func easyjson6ff3ac1dDecodeMainInternalModels1(in *jlexer.Lexer, out *ResponseTop) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -212,7 +156,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels2(in *jlexer.Lexer, out *ResponseTo
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels2(out *jwriter.Writer, in ResponseTop) {
+func easyjson6ff3ac1dEncodeMainInternalModels1(out *jwriter.Writer, in ResponseTop) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -243,27 +187,27 @@ func easyjson6ff3ac1dEncodeMainInternalModels2(out *jwriter.Writer, in ResponseT
 // MarshalJSON supports json.Marshaler interface
 func (v ResponseTop) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels2(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ResponseTop) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels2(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ResponseTop) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeMainInternalModels2(&r, v)
+	easyjson6ff3ac1dDecodeMainInternalModels1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ResponseTop) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeMainInternalModels2(l, v)
+	easyjson6ff3ac1dDecodeMainInternalModels1(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels3(in *jlexer.Lexer, out *ResponseTechnologies) {
+func easyjson6ff3ac1dDecodeMainInternalModels2(in *jlexer.Lexer, out *ResponseTechnologies) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -296,7 +240,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels3(in *jlexer.Lexer, out *ResponseTe
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels3(out *jwriter.Writer, in ResponseTechnologies) {
+func easyjson6ff3ac1dEncodeMainInternalModels2(out *jwriter.Writer, in ResponseTechnologies) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -316,27 +260,27 @@ func easyjson6ff3ac1dEncodeMainInternalModels3(out *jwriter.Writer, in ResponseT
 // MarshalJSON supports json.Marshaler interface
 func (v ResponseTechnologies) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels3(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ResponseTechnologies) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels3(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ResponseTechnologies) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeMainInternalModels3(&r, v)
+	easyjson6ff3ac1dDecodeMainInternalModels2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ResponseTechnologies) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeMainInternalModels3(l, v)
+	easyjson6ff3ac1dDecodeMainInternalModels2(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseResume) {
+func easyjson6ff3ac1dDecodeMainInternalModels3(in *jlexer.Lexer, out *ResponseResume) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -374,7 +318,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseRe
 				}
 				for !in.IsDelim(']') {
 					var v4 Recommend
-					easyjson6ff3ac1dDecodeMainInternalModels5(in, &v4)
+					(v4).UnmarshalEasyJSON(in)
 					out.Recommend = append(out.Recommend, v4)
 					in.WantComma()
 				}
@@ -390,7 +334,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseRe
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels4(out *jwriter.Writer, in ResponseResume) {
+func easyjson6ff3ac1dEncodeMainInternalModels3(out *jwriter.Writer, in ResponseResume) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -410,7 +354,7 @@ func easyjson6ff3ac1dEncodeMainInternalModels4(out *jwriter.Writer, in ResponseR
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				easyjson6ff3ac1dEncodeMainInternalModels5(out, v6)
+				(v6).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -421,154 +365,27 @@ func easyjson6ff3ac1dEncodeMainInternalModels4(out *jwriter.Writer, in ResponseR
 // MarshalJSON supports json.Marshaler interface
 func (v ResponseResume) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels4(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ResponseResume) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels4(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ResponseResume) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeMainInternalModels4(&r, v)
+	easyjson6ff3ac1dDecodeMainInternalModels3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ResponseResume) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeMainInternalModels4(l, v)
+	easyjson6ff3ac1dDecodeMainInternalModels3(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels5(in *jlexer.Lexer, out *Recommend) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "profession":
-			out.Profession = string(in.String())
-		case "simularity":
-			out.Simularity = float64(in.Float64())
-		case "learned":
-			if in.IsNull() {
-				in.Skip()
-				out.Learned = nil
-			} else {
-				in.Delim('[')
-				if out.Learned == nil {
-					if !in.IsDelim(']') {
-						out.Learned = make([]string, 0, 4)
-					} else {
-						out.Learned = []string{}
-					}
-				} else {
-					out.Learned = (out.Learned)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v7 string
-					v7 = string(in.String())
-					out.Learned = append(out.Learned, v7)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "to_learn":
-			if in.IsNull() {
-				in.Skip()
-				out.ToLearn = nil
-			} else {
-				in.Delim('[')
-				if out.ToLearn == nil {
-					if !in.IsDelim(']') {
-						out.ToLearn = make([]string, 0, 4)
-					} else {
-						out.ToLearn = []string{}
-					}
-				} else {
-					out.ToLearn = (out.ToLearn)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v8 string
-					v8 = string(in.String())
-					out.ToLearn = append(out.ToLearn, v8)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson6ff3ac1dEncodeMainInternalModels5(out *jwriter.Writer, in Recommend) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"profession\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.Profession))
-	}
-	{
-		const prefix string = ",\"simularity\":"
-		out.RawString(prefix)
-		out.Float64(float64(in.Simularity))
-	}
-	{
-		const prefix string = ",\"learned\":"
-		out.RawString(prefix)
-		if in.Learned == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v9, v10 := range in.Learned {
-				if v9 > 0 {
-					out.RawByte(',')
-				}
-				out.String(string(v10))
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"to_learn\":"
-		out.RawString(prefix)
-		if in.ToLearn == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v11, v12 := range in.ToLearn {
-				if v11 > 0 {
-					out.RawByte(',')
-				}
-				out.String(string(v12))
-			}
-			out.RawByte(']')
-		}
-	}
-	out.RawByte('}')
-}
-func easyjson6ff3ac1dDecodeMainInternalModels6(in *jlexer.Lexer, out *ResponseProfessionsWithTechnology) {
+func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseProfessionsWithTechnology) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -609,7 +426,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels6(in *jlexer.Lexer, out *ResponsePr
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels6(out *jwriter.Writer, in ResponseProfessionsWithTechnology) {
+func easyjson6ff3ac1dEncodeMainInternalModels4(out *jwriter.Writer, in ResponseProfessionsWithTechnology) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -633,27 +450,27 @@ func easyjson6ff3ac1dEncodeMainInternalModels6(out *jwriter.Writer, in ResponseP
 // MarshalJSON supports json.Marshaler interface
 func (v ResponseProfessionsWithTechnology) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels6(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ResponseProfessionsWithTechnology) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels6(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ResponseProfessionsWithTechnology) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeMainInternalModels6(&r, v)
+	easyjson6ff3ac1dDecodeMainInternalModels4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ResponseProfessionsWithTechnology) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeMainInternalModels6(l, v)
+	easyjson6ff3ac1dDecodeMainInternalModels4(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels7(in *jlexer.Lexer, out *ResponseProfessions) {
+func easyjson6ff3ac1dDecodeMainInternalModels5(in *jlexer.Lexer, out *ResponseProfessions) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -690,9 +507,9 @@ func easyjson6ff3ac1dDecodeMainInternalModels7(in *jlexer.Lexer, out *ResponsePr
 					out.Professions = (out.Professions)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v13 string
-					v13 = string(in.String())
-					out.Professions = append(out.Professions, v13)
+					var v7 string
+					v7 = string(in.String())
+					out.Professions = append(out.Professions, v7)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -707,7 +524,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels7(in *jlexer.Lexer, out *ResponsePr
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels7(out *jwriter.Writer, in ResponseProfessions) {
+func easyjson6ff3ac1dEncodeMainInternalModels5(out *jwriter.Writer, in ResponseProfessions) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -723,11 +540,11 @@ func easyjson6ff3ac1dEncodeMainInternalModels7(out *jwriter.Writer, in ResponseP
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v14, v15 := range in.Professions {
-				if v14 > 0 {
+			for v8, v9 := range in.Professions {
+				if v8 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v15))
+				out.String(string(v9))
 			}
 			out.RawByte(']')
 		}
@@ -738,24 +555,202 @@ func easyjson6ff3ac1dEncodeMainInternalModels7(out *jwriter.Writer, in ResponseP
 // MarshalJSON supports json.Marshaler interface
 func (v ResponseProfessions) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels7(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ResponseProfessions) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels7(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ResponseProfessions) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson6ff3ac1dDecodeMainInternalModels5(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ResponseProfessions) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6ff3ac1dDecodeMainInternalModels5(l, v)
+}
+func easyjson6ff3ac1dDecodeMainInternalModels6(in *jlexer.Lexer, out *ResponseLetter) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "status":
+			out.Status = int(in.Int())
+		case "cover_letter":
+			out.CoverLetter = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6ff3ac1dEncodeMainInternalModels6(out *jwriter.Writer, in ResponseLetter) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Status))
+	}
+	{
+		const prefix string = ",\"cover_letter\":"
+		out.RawString(prefix)
+		out.String(string(in.CoverLetter))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v ResponseLetter) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson6ff3ac1dEncodeMainInternalModels6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ResponseLetter) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6ff3ac1dEncodeMainInternalModels6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *ResponseLetter) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson6ff3ac1dDecodeMainInternalModels6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ResponseLetter) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6ff3ac1dDecodeMainInternalModels6(l, v)
+}
+func easyjson6ff3ac1dDecodeMainInternalModels7(in *jlexer.Lexer, out *ResponseFinished) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "status":
+			out.Status = int(in.Int())
+		case "finished":
+			if in.IsNull() {
+				in.Skip()
+				out.Finished = nil
+			} else {
+				in.Delim('[')
+				if out.Finished == nil {
+					if !in.IsDelim(']') {
+						out.Finished = make([]string, 0, 4)
+					} else {
+						out.Finished = []string{}
+					}
+				} else {
+					out.Finished = (out.Finished)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v10 string
+					v10 = string(in.String())
+					out.Finished = append(out.Finished, v10)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6ff3ac1dEncodeMainInternalModels7(out *jwriter.Writer, in ResponseFinished) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Status))
+	}
+	{
+		const prefix string = ",\"finished\":"
+		out.RawString(prefix)
+		if in.Finished == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v11, v12 := range in.Finished {
+				if v11 > 0 {
+					out.RawByte(',')
+				}
+				out.String(string(v12))
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v ResponseFinished) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson6ff3ac1dEncodeMainInternalModels7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ResponseFinished) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6ff3ac1dEncodeMainInternalModels7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *ResponseFinished) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson6ff3ac1dDecodeMainInternalModels7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *ResponseProfessions) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *ResponseFinished) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6ff3ac1dDecodeMainInternalModels7(l, v)
 }
 func easyjson6ff3ac1dDecodeMainInternalModels8(in *jlexer.Lexer, out *ResponseFavorites) {
@@ -795,9 +790,9 @@ func easyjson6ff3ac1dDecodeMainInternalModels8(in *jlexer.Lexer, out *ResponseFa
 					out.FavoritesData = (out.FavoritesData)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v16 Favorite
-					easyjson6ff3ac1dDecodeMainInternalModels9(in, &v16)
-					out.FavoritesData = append(out.FavoritesData, v16)
+					var v13 Favorite
+					(v13).UnmarshalEasyJSON(in)
+					out.FavoritesData = append(out.FavoritesData, v13)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -828,11 +823,11 @@ func easyjson6ff3ac1dEncodeMainInternalModels8(out *jwriter.Writer, in ResponseF
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v17, v18 := range in.FavoritesData {
-				if v17 > 0 {
+			for v14, v15 := range in.FavoritesData {
+				if v14 > 0 {
 					out.RawByte(',')
 				}
-				easyjson6ff3ac1dEncodeMainInternalModels9(out, v18)
+				(v15).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
@@ -863,70 +858,7 @@ func (v *ResponseFavorites) UnmarshalJSON(data []byte) error {
 func (v *ResponseFavorites) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6ff3ac1dDecodeMainInternalModels8(l, v)
 }
-func easyjson6ff3ac1dDecodeMainInternalModels9(in *jlexer.Lexer, out *Favorite) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "id":
-			out.ID = int64(in.Int64())
-		case "name":
-			out.Name = string(in.String())
-		case "count_all":
-			out.CountAll = int64(in.Int64())
-		case "count_finished":
-			out.CountFinished = int64(in.Int64())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson6ff3ac1dEncodeMainInternalModels9(out *jwriter.Writer, in Favorite) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"name\":"
-		out.RawString(prefix)
-		out.String(string(in.Name))
-	}
-	{
-		const prefix string = ",\"count_all\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.CountAll))
-	}
-	{
-		const prefix string = ",\"count_finished\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.CountFinished))
-	}
-	out.RawByte('}')
-}
-func easyjson6ff3ac1dDecodeMainInternalModels10(in *jlexer.Lexer, out *Response) {
+func easyjson6ff3ac1dDecodeMainInternalModels9(in *jlexer.Lexer, out *Response) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -959,7 +891,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels10(in *jlexer.Lexer, out *Response)
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeMainInternalModels10(out *jwriter.Writer, in Response) {
+func easyjson6ff3ac1dEncodeMainInternalModels9(out *jwriter.Writer, in Response) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -979,23 +911,23 @@ func easyjson6ff3ac1dEncodeMainInternalModels10(out *jwriter.Writer, in Response
 // MarshalJSON supports json.Marshaler interface
 func (v Response) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeMainInternalModels10(&w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels9(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Response) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeMainInternalModels10(w, v)
+	easyjson6ff3ac1dEncodeMainInternalModels9(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Response) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeMainInternalModels10(&r, v)
+	easyjson6ff3ac1dDecodeMainInternalModels9(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Response) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeMainInternalModels10(l, v)
+	easyjson6ff3ac1dDecodeMainInternalModels9(l, v)
 }

@@ -99,3 +99,29 @@ func (s *Service) GetFavorites(ctx context.Context, data *proto.UserID) (*proto.
 
 	return &proto.Favorites{Favorite: favorites}, nil
 }
+
+func (s *Service) Finish(ctx context.Context, data *proto.LikeData) (*proto.Empty, error) {
+	if err := s.storage.Finish(data); err != nil {
+		return &proto.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &proto.Empty{}, nil
+}
+
+func (s *Service) Cancel(ctx context.Context, data *proto.LikeData) (*proto.Empty, error) {
+	err := s.storage.Cancel(data)
+	if err != nil {
+		return &proto.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &proto.Empty{}, nil
+}
+
+func (s *Service) GetFinished(ctx context.Context, data *proto.LikeData) (*proto.Finished, error) {
+	finished, err := s.storage.GetFinished(data)
+	if err != nil {
+		return &proto.Finished{Names: nil}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &proto.Finished{Names: finished}, nil
+}

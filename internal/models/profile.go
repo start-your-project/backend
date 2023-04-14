@@ -33,5 +33,6 @@ type Recommend struct {
 	ToLearn    []string `json:"to_learn" form:"to_learn"`
 }
 
-type ResumeData struct {
+type LinkDTO struct {
+	Link string `json:"link" form:"link"`
 }

@@ -30,6 +30,9 @@ type ProfileClient interface {
 	AddLike(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error)
 	RemoveLike(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error)
 	GetFavorites(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Favorites, error)
+	Finish(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error)
+	Cancel(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error)
+	GetFinished(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Finished, error)
 }
 
 type profileClient struct {
@@ -112,6 +115,33 @@ func (c *profileClient) GetFavorites(ctx context.Context, in *UserID, opts ...gr
 	return out, nil
 }
 
+func (c *profileClient) Finish(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/profile.Profile/Finish", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *profileClient) Cancel(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/profile.Profile/Cancel", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *profileClient) GetFinished(ctx context.Context, in *LikeData, opts ...grpc.CallOption) (*Finished, error) {
+	out := new(Finished)
+	err := c.cc.Invoke(ctx, "/profile.Profile/GetFinished", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProfileServer is the server API for Profile service.
 // All implementations should embed UnimplementedProfileServer
 // for forward compatibility
@@ -124,6 +154,9 @@ type ProfileServer interface {
 	AddLike(context.Context, *LikeData) (*Empty, error)
 	RemoveLike(context.Context, *LikeData) (*Empty, error)
 	GetFavorites(context.Context, *UserID) (*Favorites, error)
+	Finish(context.Context, *LikeData) (*Empty, error)
+	Cancel(context.Context, *LikeData) (*Empty, error)
+	GetFinished(context.Context, *LikeData) (*Finished, error)
 }
 
 // UnimplementedProfileServer should be embedded to have forward compatible implementations.
@@ -153,6 +186,15 @@ func (UnimplementedProfileServer) RemoveLike(context.Context, *LikeData) (*Empty
 }
 func (UnimplementedProfileServer) GetFavorites(context.Context, *UserID) (*Favorites, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFavorites not implemented")
+}
+func (UnimplementedProfileServer) Finish(context.Context, *LikeData) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Finish not implemented")
+}
+func (UnimplementedProfileServer) Cancel(context.Context, *LikeData) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Cancel not implemented")
+}
+func (UnimplementedProfileServer) GetFinished(context.Context, *LikeData) (*Finished, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFinished not implemented")
 }
 
 // UnsafeProfileServer may be embedded to opt out of forward compatibility for this service.
@@ -310,6 +352,60 @@ func _Profile_GetFavorites_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Profile_Finish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).Finish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/profile.Profile/Finish",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).Finish(ctx, req.(*LikeData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Profile_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).Cancel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/profile.Profile/Cancel",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).Cancel(ctx, req.(*LikeData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Profile_GetFinished_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).GetFinished(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/profile.Profile/GetFinished",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).GetFinished(ctx, req.(*LikeData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -348,6 +444,18 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFavorites",
 			Handler:    _Profile_GetFavorites_Handler,
+		},
+		{
+			MethodName: "Finish",
+			Handler:    _Profile_Finish_Handler,
+		},
+		{
+			MethodName: "Cancel",
+			Handler:    _Profile_Cancel_Handler,
+		},
+		{
+			MethodName: "GetFinished",
+			Handler:    _Profile_GetFinished_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

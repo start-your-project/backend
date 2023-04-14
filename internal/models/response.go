@@ -38,3 +38,13 @@ type ResponseResume struct {
 	Status    int         `json:"status"`
 	Recommend []Recommend `json:"recommend"`
 }
+
+type ResponseFinished struct {
+	Status   int      `json:"status"`
+	Finished []string `json:"finished"`
+}
+
+type ResponseLetter struct {
+	Status      int    `json:"status"`
+	CoverLetter string `json:"cover_letter"`
+}

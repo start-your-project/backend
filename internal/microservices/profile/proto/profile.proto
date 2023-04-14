@@ -54,6 +54,10 @@ message Favorites {
   repeated Favorite Favorite = 1;
 }
 
+message Finished {
+ repeated string Names = 1;
+}
+
 message Empty { }
 
 service Profile {
@@ -66,4 +70,8 @@ service Profile {
   rpc AddLike(LikeData) returns(Empty) {}
   rpc RemoveLike(LikeData) returns(Empty) {}
   rpc GetFavorites(UserID) returns(Favorites) {}
+
+  rpc Finish(LikeData) returns(Empty) {}
+  rpc Cancel(LikeData) returns(Empty) {}
+  rpc GetFinished(LikeData) returns(Finished) {}
 }

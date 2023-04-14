@@ -15,4 +15,8 @@ type Storage interface {
 	AddLike(data *proto.LikeData) error
 	RemoveLike(data *proto.LikeData) error
 	GetFavorites(userID int64) ([]*proto.Favorite, error)
+
+	Finish(data *proto.LikeData) error
+	Cancel(data *proto.LikeData) error
+	GetFinished(data *proto.LikeData) ([]string, error)
 }

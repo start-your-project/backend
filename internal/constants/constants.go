@@ -21,8 +21,10 @@ const (
 	EmailConfirmed         = "Email confirmed"
 	FileTypeIsNotSupported = "File type is not supported"
 	ProfileIsEdited        = "Profile is edited"
-	LikeIsEdited           = "Like is edited"
+	LikeIsAdded            = "Like is added"
 	LikeIsRemoved          = "Like is removed"
+	Finished               = "Finished"
+	Canceled               = "Canceled"
 )
 
 var (
@@ -56,6 +58,10 @@ const (
 	Professions     = "/api/v1/professions"
 	GetProfessions  = "/api/v1/list"
 	Resume          = "/api/v1/resume"
+	FinishURL       = "/api/v1/finish"
+	CancelURL       = "/api/v1/cancel"
+	FinishedURL     = "/api/v1/finished"
+	LetterURL       = "/api/v1/letter"
 )
 
 var (

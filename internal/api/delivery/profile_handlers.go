@@ -46,6 +46,10 @@ func (p *profileHandler) Register(router *echo.Echo) {
 	router.DELETE(constants.RemoveLikeURL, p.RemoveLike())
 	router.GET(constants.LikesURL, p.GetFavorites())
 	router.POST(constants.Resume, p.Resume())
+	router.POST(constants.FinishURL, p.Finish())
+	router.DELETE(constants.CancelURL, p.Cancel())
+	router.GET(constants.FinishedURL, p.GetFinished())
+	router.POST(constants.LetterURL, p.Letter())
 }
 
 // nolint:cyclop
@@ -364,7 +368,7 @@ func (p *profileHandler) AddLike() echo.HandlerFunc {
 
 		resp, err := easyjson.Marshal(&models.Response{
 			Status:  http.StatusOK,
-			Message: constants.LikeIsEdited,
+			Message: constants.LikeIsAdded,
 		})
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
@@ -565,6 +569,225 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 		}
 
 		resp, errMarshal := easyjson.Marshal(recommends)
+		if errMarshal != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+// nolint:dupl
+func (p *profileHandler) Finish() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		data, requestID, err := p.getLikeData(ctx)
+		if err != nil {
+			return err
+		}
+
+		_, err = p.profileMicroservice.Finish(context.Background(), data)
+		if err != nil {
+			return p.ParseError(ctx, requestID, err)
+		}
+
+		p.logger.Info(
+			zap.String("ID", requestID),
+			zap.Int("ANSWER STATUS", http.StatusOK),
+		)
+
+		resp, err := easyjson.Marshal(&models.Response{
+			Status:  http.StatusOK,
+			Message: constants.Finished,
+		})
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+// nolint:dupl
+func (p *profileHandler) Cancel() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		data, requestID, err := p.getLikeData(ctx)
+		if err != nil {
+			return err
+		}
+
+		_, err = p.profileMicroservice.Cancel(context.Background(), data)
+		if err != nil {
+			return p.ParseError(ctx, requestID, err)
+		}
+
+		p.logger.Info(
+			zap.String("ID", requestID),
+			zap.Int("ANSWER STATUS", http.StatusOK),
+		)
+		resp, err := easyjson.Marshal(&models.Response{
+			Status:  http.StatusOK,
+			Message: constants.Canceled,
+		})
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+func (p *profileHandler) GetFinished() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		data, requestID, err := p.getLikeData(ctx)
+		if err != nil {
+			return err
+		}
+
+		finished, err := p.profileMicroservice.GetFinished(context.Background(), data)
+
+		if err != nil {
+			return p.ParseError(ctx, requestID, err)
+		}
+
+		p.logger.Info(
+			zap.String("ID", requestID),
+			zap.Int("ANSWER STATUS", http.StatusOK),
+		)
+
+		resp, err := easyjson.Marshal(&models.ResponseFinished{
+			Status:   http.StatusOK,
+			Finished: finished.Names,
+		})
+		if err != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+// nolint:cyclop
+func (p *profileHandler) Letter() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		requestID, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			p.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		link := models.LinkDTO{
+			Link: "",
+		}
+
+		if err := ctx.Bind(&link); err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusBadRequest)
+		}
+
+		file, err := ctx.FormFile("file")
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		err = license.SetMeteredKey(os.Getenv("PDF_API_KEY"))
+		if err != nil && err.Error() != "license key already set" {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		src, err := file.Open()
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		pdfReader, err := model.NewPdfReader(src)
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		numOfPages, err := pdfReader.GetNumPages()
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		res := ""
+		for i := 0; i < numOfPages; i++ {
+			pageNum := i + 1
+
+			page, errGetPage := pdfReader.GetPage(pageNum)
+			if errGetPage != nil {
+				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			}
+
+			textExtractor, errExtractor := extractor.New(page)
+			if errExtractor != nil {
+				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			}
+
+			text, errExtractText := textExtractor.ExtractText()
+			if errExtractText != nil {
+				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			}
+
+			res += text
+		}
+
+		res = strings.ReplaceAll(res, "\n", " ")
+
+		req := models.LetterRequest{
+			Resume:  res,
+			Vacancy: link.Link,
+		}
+
+		json, err := req.MarshalJSON()
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		//nolint:bodyclose
+		response, err := http.Post(os.Getenv("HOST_LETTER"), "application/json", bytes.NewBuffer(json))
+		defer func(Body io.ReadCloser) {
+			err = Body.Close()
+			if err != nil {
+				p.logger.Error(err)
+			}
+		}(response.Body)
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		}
+
+		if response.Status != "200 OK" {
+			return constants.RespError(ctx, p.logger, requestID, "status is not 200", http.StatusInternalServerError)
+		}
+
+		letter := &models.ResponseLetter{
+			Status:      http.StatusOK,
+			CoverLetter: "",
+		}
+		err = easyjson.Unmarshal(body, letter)
+		if err != nil {
+			p.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		resp, errMarshal := easyjson.Marshal(letter)
 		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
 		}
