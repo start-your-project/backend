@@ -48,7 +48,7 @@ func (p *profileHandler) Register(router *echo.Echo) {
 	router.POST(constants.Resume, p.Resume())
 	router.POST(constants.FinishURL, p.Finish())
 	router.DELETE(constants.CancelURL, p.Cancel())
-	router.GET(constants.FinishedURL, p.GetFinished())
+	router.POST(constants.FinishedURL, p.GetFinished())
 	router.POST(constants.LetterURL, p.Letter())
 }
 
