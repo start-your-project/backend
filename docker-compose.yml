@@ -114,6 +114,8 @@ services:
       - minio
       - main
     volumes:
+      - /etc/letsencrypt/live/job-roadmap.ru/fullchain.pem:/etc/letsencrypt/live/job-roadmap.ru/fullchain.pem
+      - /etc/letsencrypt/live/job-roadmap.ru/privkey.pem:/etc/letsencrypt/live/job-roadmap.ru/privkey.pem
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
