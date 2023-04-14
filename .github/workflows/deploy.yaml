@@ -121,7 +121,7 @@ jobs:
             cd ${{ secrets.PROJECT_PATH }}
             sudo su
             rm -rf .env
-            git pull origin main
+            sudo git pull origin main
             touch .env;
             echo DBHOST=${{ secrets.DBHOST }} >> .env;
             echo DBPORT=${{ secrets.DBPORT }} >> .env;
