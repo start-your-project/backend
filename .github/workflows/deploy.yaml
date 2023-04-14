@@ -120,7 +120,6 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             sudo su
-            mkdir test
             rm -rf .env
             git pull origin main
             touch .env;
