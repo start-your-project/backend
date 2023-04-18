@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"io"
@@ -11,15 +12,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strings"
+	"strconv"
 	"time"
 
-	"github.com/mailru/easyjson"
-	"github.com/unidoc/unipdf/v3/common/license"
-	"github.com/unidoc/unipdf/v3/extractor"
-	"github.com/unidoc/unipdf/v3/model"
-
+	"code.sajari.com/docconv"
 	"github.com/labstack/echo/v4"
+	"github.com/mailru/easyjson"
 	"github.com/microcosm-cc/bluemonday"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -466,7 +464,7 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 		req := models.ResumeRequest{
 			CvText: "",
 			NTech:  10,
-			NProf:  7,
+			Role:   "",
 		}
 
 		if err := ctx.Bind(&req); err != nil {
@@ -478,50 +476,69 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		err = license.SetMeteredKey(os.Getenv("PDF_API_KEY"))
-		if err != nil && err.Error() != "license key already set" {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-		}
-
 		src, err := file.Open()
 		if err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		pdfReader, err := model.NewPdfReader(src)
+		pdf, _, err := docconv.ConvertPDF(src)
 		if err != nil {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
-		numOfPages, err := pdfReader.GetNumPages()
+		req.CvText = pdf
+
+		resRole, err := http.Get(os.Getenv("HOST_SEARCH") + req.Role)
 		if err != nil {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		defer resRole.Body.Close()
+
+		scanner := bufio.NewScanner(resRole.Body)
+		scanner.Scan()
+		singleRequestForm := scanner.Text()
+
+		if resRole.Status != "200 OK" {
+			stat := resRole.Status[:3]
+			statusInt, errAt := strconv.Atoi(stat)
+			if errAt != nil {
+				resp, errMarshal := easyjson.Marshal(&models.Response{
+					Status:  http.StatusInternalServerError,
+					Message: errAt.Error(),
+				})
+				if errMarshal != nil {
+					return ctx.NoContent(http.StatusInternalServerError)
+				}
+				return ctx.JSONBlob(http.StatusInternalServerError, resp)
+			} else {
+				return ctx.JSONBlob(statusInt, []byte(singleRequestForm))
+			}
 		}
 
-		res := ""
-		for i := 0; i < numOfPages; i++ {
-			pageNum := i + 1
-
-			page, errGetPage := pdfReader.GetPage(pageNum)
-			if errGetPage != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+		profession := &models.Profession{Profession: ""}
+		err = easyjson.Unmarshal([]byte(singleRequestForm), profession)
+		if err != nil {
+			p.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
 			}
-
-			textExtractor, errExtractor := extractor.New(page)
-			if errExtractor != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-			}
-
-			text, errExtractText := textExtractor.ExtractText()
-			if errExtractText != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-			}
-
-			res += text
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
-		res = strings.ReplaceAll(res, "\n", " ")
-		req.CvText = res
+		req.Role = profession.Profession
 
 		json, err := req.MarshalJSON()
 		if err != nil {
@@ -546,7 +563,20 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 		}
 
 		if response.Status != "200 OK" {
-			return constants.RespError(ctx, p.logger, requestID, "status is not 200", http.StatusInternalServerError)
+			stat := response.Status[:3]
+			statusInt, errAtoi := strconv.Atoi(stat)
+			if errAtoi != nil {
+				resp, errMarshal := easyjson.Marshal(&models.Response{
+					Status:  http.StatusInternalServerError,
+					Message: errAtoi.Error(),
+				})
+				if errMarshal != nil {
+					return ctx.NoContent(http.StatusInternalServerError)
+				}
+				return ctx.JSONBlob(http.StatusInternalServerError, resp)
+			} else {
+				return ctx.JSONBlob(statusInt, body)
+			}
 		}
 
 		recommends := &models.ResponseResume{
@@ -693,52 +723,25 @@ func (p *profileHandler) Letter() echo.HandlerFunc {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		err = license.SetMeteredKey(os.Getenv("PDF_API_KEY"))
-		if err != nil && err.Error() != "license key already set" {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-		}
-
 		src, err := file.Open()
 		if err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
-		pdfReader, err := model.NewPdfReader(src)
+		pdf, _, err := docconv.ConvertPDF(src)
 		if err != nil {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-		}
-
-		numOfPages, err := pdfReader.GetNumPages()
-		if err != nil {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-		}
-
-		res := ""
-		for i := 0; i < numOfPages; i++ {
-			pageNum := i + 1
-
-			page, errGetPage := pdfReader.GetPage(pageNum)
-			if errGetPage != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
 			}
-
-			textExtractor, errExtractor := extractor.New(page)
-			if errExtractor != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-			}
-
-			text, errExtractText := textExtractor.ExtractText()
-			if errExtractText != nil {
-				return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
-			}
-
-			res += text
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
-
-		res = strings.ReplaceAll(res, "\n", " ")
 
 		req := models.LetterRequest{
-			Resume:  res,
+			Resume:  pdf,
 			Vacancy: link.Link,
 		}
 
@@ -749,15 +752,10 @@ func (p *profileHandler) Letter() echo.HandlerFunc {
 
 		//nolint:bodyclose
 		response, err := http.Post(os.Getenv("HOST_LETTER"), "application/json", bytes.NewBuffer(json))
-		defer func(Body io.ReadCloser) {
-			err = Body.Close()
-			if err != nil {
-				p.logger.Error(err)
-			}
-		}(response.Body)
 		if err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
+		defer response.Body.Close()
 
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
@@ -765,7 +763,20 @@ func (p *profileHandler) Letter() echo.HandlerFunc {
 		}
 
 		if response.Status != "200 OK" {
-			return constants.RespError(ctx, p.logger, requestID, "status is not 200", http.StatusInternalServerError)
+			status := response.Status[:3]
+			statusInt, errAtoi := strconv.Atoi(status)
+			if errAtoi != nil {
+				resp, errMarshal := easyjson.Marshal(&models.Response{
+					Status:  http.StatusInternalServerError,
+					Message: errAtoi.Error(),
+				})
+				if errMarshal != nil {
+					return ctx.NoContent(http.StatusInternalServerError)
+				}
+				return ctx.JSONBlob(http.StatusInternalServerError, resp)
+			} else {
+				return ctx.JSONBlob(statusInt, body)
+			}
 		}
 
 		letter := &models.ResponseLetter{

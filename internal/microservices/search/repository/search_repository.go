@@ -15,7 +15,9 @@ func NewStorage(db *sql.DB) *Storage {
 }
 
 func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, error) {
-	sqlScript := "SELECT name_technology, distance, professionalism FROM technology_position WHERE name_position=$1"
+	sqlScript := "SELECT name_technology, distance, professionalism, t.hard_skill " +
+		"FROM technology_position JOIN technology t ON " +
+		"t.id = technology_position.id_technology AND name_position=$1"
 
 	technologies := make([]*proto.Technology, 0)
 
@@ -30,7 +32,8 @@ func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, e
 
 	for rows.Next() {
 		var technology proto.Technology
-		if err = rows.Scan(&technology.Name, &technology.Distance, &technology.Professionalism); err != nil {
+
+		if err = rows.Scan(&technology.Name, &technology.Distance, &technology.Professionalism, &technology.HardSkill); err != nil {
 			return nil, err
 		}
 		technologies = append(technologies, &technology)

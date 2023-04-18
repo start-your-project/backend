@@ -4,6 +4,7 @@ type Technology struct {
 	TechnologyName  string  `json:"technology_name" form:"technology_name"`
 	Distance        float32 `json:"distance"`
 	Professionalism float32 `json:"professionalism"`
+	HardSkill       bool    `json:"hard_skill"`
 }
 
 //easyjson:json
@@ -22,6 +23,7 @@ type Profession struct {
 type Professions struct {
 	Profession []string `json:"professions"`
 }
+
 type RespProfessions struct {
 	Techs      string           `json:"techs"`
 	JobNumber  int              `json:"job_number"`
@@ -36,4 +38,9 @@ type RespProfession struct {
 //easyjson:json
 type SearchTechs struct {
 	SearchText string `json:"search_text" form:"search_text"`
+}
+
+//easyjson:json
+type Techs struct {
+	Techs []string `json:"techs"`
 }

@@ -40,8 +40,8 @@ func easyjson3c9d2b01DecodeMainInternalModels(in *jlexer.Lexer, out *ResumeReque
 			out.CvText = string(in.String())
 		case "n_tech":
 			out.NTech = int(in.Int())
-		case "n_prof":
-			out.NProf = int(in.Int())
+		case "role":
+			out.Role = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -67,9 +67,9 @@ func easyjson3c9d2b01EncodeMainInternalModels(out *jwriter.Writer, in ResumeRequ
 		out.Int(int(in.NTech))
 	}
 	{
-		const prefix string = ",\"n_prof\":"
+		const prefix string = ",\"role\":"
 		out.RawString(prefix)
-		out.Int(int(in.NProf))
+		out.String(string(in.Role))
 	}
 	out.RawByte('}')
 }

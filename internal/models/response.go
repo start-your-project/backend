@@ -48,3 +48,8 @@ type ResponseLetter struct {
 	Status      int    `json:"status"`
 	CoverLetter string `json:"cover_letter"`
 }
+
+type ResponseTechs struct {
+	Status int      `json:"status"`
+	Techs  []string `json:"techs"`
+}

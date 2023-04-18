@@ -27,10 +27,8 @@ type Favorite struct {
 }
 
 type Recommend struct {
-	Profession string   `json:"profession" form:"profession"`
-	Simularity float64  `json:"simularity" form:"simularity"`
-	Learned    []string `json:"learned" form:"learned"`
-	ToLearn    []string `json:"to_learn" form:"to_learn"`
+	Learned []string `json:"learned" form:"learned"`
+	ToLearn []string `json:"to learn" form:"to learn"`
 }
 
 type LinkDTO struct {

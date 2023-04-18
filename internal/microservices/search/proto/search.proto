@@ -14,6 +14,7 @@ message Technology {
   string Name = 1;
   float Distance = 2;
   float Professionalism = 3;
+  bool HardSkill = 4;
 }
 
 message TechnologiesArr {

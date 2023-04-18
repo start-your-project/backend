@@ -25,6 +25,7 @@ const (
 	LikeIsRemoved          = "Like is removed"
 	Finished               = "Finished"
 	Canceled               = "Canceled"
+	NoTechnologies         = "No technologies"
 )
 
 var (
@@ -62,6 +63,7 @@ const (
 	CancelURL       = "/api/v1/cancel"
 	FinishedURL     = "/api/v1/finished"
 	LetterURL       = "/api/v1/letter"
+	GetTechSearch   = "/api/v1/tech_search"
 )
 
 var (
