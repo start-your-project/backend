@@ -3,6 +3,7 @@ package delivery
 import (
 	"bufio"
 	"context"
+	"crypto/tls"
 	"main/internal/constants"
 	search "main/internal/microservices/search/proto"
 	"main/internal/models"
@@ -56,9 +57,20 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 
 		searchText := ctx.QueryParam("search_text")
 
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		res, err := http.Get(os.Getenv("HOST_SEARCH") + searchText)
 		if err != nil {
-			return ctx.NoContent(http.StatusInternalServerError)
+			a.logger.Error(
+            				zap.String("ERROR", err.Error()),
+            				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+            			resp, err := easyjson.Marshal(&models.Response{
+            				Status:  http.StatusInternalServerError,
+            				Message:  err.Error(),
+            			})
+            			if err != nil {
+            				return ctx.NoContent(http.StatusInternalServerError)
+            			}
+            			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 		defer res.Body.Close()
 
@@ -322,6 +334,7 @@ func (a *searchHandler) Recommendation() echo.HandlerFunc {
 
 		searchText := ctx.QueryParam("search_text")
 
+        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		res, err := http.Get(os.Getenv("HOST_RECOMMEND") + searchText)
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
@@ -393,6 +406,7 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
+        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		res, err := http.Get(os.Getenv("HOST_PROFESSIONS") + url.QueryEscape(techs.SearchText))
 		if err != nil {
 			a.logger.Error(
@@ -520,8 +534,9 @@ func (a *searchHandler) GetProfessions() echo.HandlerFunc {
 		}
 
 		positionResult := models.ResponseTop{
-			Status: http.StatusOK,
-			Top:    make([]models.Profession, 0),
+			Status:      http.StatusOK,
+			Top:         make([]models.Profession, 0),
+			TipsToLearn: positions.TipsToLearn,
 		}
 
 		for _, position := range positions.Position {
@@ -569,6 +584,7 @@ func (a *searchHandler) TechSearch() echo.HandlerFunc {
 
 		searchText := ctx.QueryParam("search_text")
 
+        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		res, err := http.Get(os.Getenv("HOST_TECH") + searchText)
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)

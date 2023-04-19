@@ -7,4 +7,5 @@ type Storage interface {
 	IsPositionExists(data *proto.SearchText) (bool, error)
 	GetTop() ([]*proto.Position, error)
 	GetPositions(data *proto.GetTechnology) ([]*proto.Position, error)
+	GetTipsToLearn(data *proto.GetTechnology) (string, error)
 }

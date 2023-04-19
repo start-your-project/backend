@@ -123,3 +123,26 @@ func (s Storage) GetPositions(data *proto.GetTechnology) ([]*proto.Position, err
 
 	return positions, nil
 }
+
+func (s Storage) GetTipsToLearn(data *proto.GetTechnology) (string, error) {
+	sqlScript := "SELECT tips_to_learn FROM technology WHERE name=$1"
+
+	var tipsToLearn string
+
+	rows, err := s.db.Query(sqlScript, data.Name)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
+
+	for rows.Next() {
+		if err = rows.Scan(&tipsToLearn); err != nil {
+			return "", err
+		}
+	}
+
+	return tipsToLearn, nil
+}

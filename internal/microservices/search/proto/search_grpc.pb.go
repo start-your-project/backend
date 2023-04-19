@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SearchClient interface {
 	GetTechnologies(ctx context.Context, in *SearchText, opts ...grpc.CallOption) (*TechnologiesArr, error)
 	GetTop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PositionTop, error)
-	GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*PositionTop, error)
+	GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*NodeInfo, error)
 }
 
 type searchClient struct {
@@ -53,8 +53,8 @@ func (c *searchClient) GetTop(ctx context.Context, in *Empty, opts ...grpc.CallO
 	return out, nil
 }
 
-func (c *searchClient) GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*PositionTop, error) {
-	out := new(PositionTop)
+func (c *searchClient) GetPositions(ctx context.Context, in *GetTechnology, opts ...grpc.CallOption) (*NodeInfo, error) {
+	out := new(NodeInfo)
 	err := c.cc.Invoke(ctx, "/search.Search/GetPositions", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *searchClient) GetPositions(ctx context.Context, in *GetTechnology, opts
 type SearchServer interface {
 	GetTechnologies(context.Context, *SearchText) (*TechnologiesArr, error)
 	GetTop(context.Context, *Empty) (*PositionTop, error)
-	GetPositions(context.Context, *GetTechnology) (*PositionTop, error)
+	GetPositions(context.Context, *GetTechnology) (*NodeInfo, error)
 }
 
 // UnimplementedSearchServer should be embedded to have forward compatible implementations.
@@ -81,7 +81,7 @@ func (UnimplementedSearchServer) GetTechnologies(context.Context, *SearchText) (
 func (UnimplementedSearchServer) GetTop(context.Context, *Empty) (*PositionTop, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTop not implemented")
 }
-func (UnimplementedSearchServer) GetPositions(context.Context, *GetTechnology) (*PositionTop, error) {
+func (UnimplementedSearchServer) GetPositions(context.Context, *GetTechnology) (*NodeInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPositions not implemented")
 }
 

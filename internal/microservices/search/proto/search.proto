@@ -29,6 +29,11 @@ message PositionTop {
   repeated Position Position = 1;
 }
 
+message NodeInfo {
+  repeated Position Position = 1;
+  string TipsToLearn = 2;
+}
+
 message GetTechnology {
   string Name = 1;
 }
@@ -38,5 +43,5 @@ message Empty { }
 service Search {
   rpc GetTechnologies(SearchText) returns(TechnologiesArr) {}
   rpc GetTop(Empty) returns(PositionTop) {}
-  rpc GetPositions(GetTechnology) returns(PositionTop) {}
+  rpc GetPositions(GetTechnology) returns(NodeInfo) {}
 }

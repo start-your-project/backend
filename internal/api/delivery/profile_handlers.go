@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/tls"
 	"io"
 	"main/internal/constants"
 	"main/internal/csrf"
@@ -495,6 +496,7 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 
 		req.CvText = pdf
 
+        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		resRole, err := http.Get(os.Getenv("HOST_SEARCH") + req.Role)
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
@@ -715,7 +717,7 @@ func (p *profileHandler) Letter() echo.HandlerFunc {
 		}
 
 		if err := ctx.Bind(&link); err != nil {
-			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusBadRequest)
+			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
 
 		file, err := ctx.FormFile("file")
@@ -749,6 +751,8 @@ func (p *profileHandler) Letter() echo.HandlerFunc {
 		if err != nil {
 			return constants.RespError(ctx, p.logger, requestID, err.Error(), http.StatusInternalServerError)
 		}
+
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 		//nolint:bodyclose
 		response, err := http.Post(os.Getenv("HOST_LETTER"), "application/json", bytes.NewBuffer(json))

@@ -146,6 +146,8 @@ func easyjson6ff3ac1dDecodeMainInternalModels1(in *jlexer.Lexer, out *ResponseTo
 				}
 				in.Delim(']')
 			}
+		case "tips_to_learn":
+			out.TipsToLearn = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -180,6 +182,11 @@ func easyjson6ff3ac1dEncodeMainInternalModels1(out *jwriter.Writer, in ResponseT
 			}
 			out.RawByte(']')
 		}
+	}
+	{
+		const prefix string = ",\"tips_to_learn\":"
+		out.RawString(prefix)
+		out.String(string(in.TipsToLearn))
 	}
 	out.RawByte('}')
 }
@@ -414,7 +421,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseRe
 				in.Delim('[')
 				if out.Recommend == nil {
 					if !in.IsDelim(']') {
-						out.Recommend = make([]Recommend, 0, 1)
+						out.Recommend = make([]Recommend, 0, 0)
 					} else {
 						out.Recommend = []Recommend{}
 					}

@@ -133,7 +133,9 @@ func (a *authHandler) ConfirmEmail() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
-		hash := strings.ReplaceAll(ctx.Request().Header.Get("Req"), "/confirm/?hash=", "")
+		hash := strings.ReplaceAll(ctx.Request().Header.Get("Req"), "/confirm?hash=", "")
+
+		a.logger.Info(hash)
 
 		data := &proto.Hash{Hash: hash}
 		_, err := a.authMicroservice.ConfirmEmail(context.Background(), data)
@@ -147,7 +149,7 @@ func (a *authHandler) ConfirmEmail() echo.HandlerFunc {
 		)
 
 		resp, err := easyjson.Marshal(&models.Response{
-			Status:  http.StatusOK,
+			Status:  http.StatusMovedPermanently,
 			Message: constants.EmailConfirmed,
 		})
 		if err != nil {
