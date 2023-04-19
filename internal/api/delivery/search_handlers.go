@@ -141,6 +141,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 					HardSkill:       technology.HardSkill,
 				})
 			}
+			a.logger.Info(positionResult)
 
 			resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 				Status:       http.StatusOK,
@@ -216,6 +217,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 				})
 			}
 
+			a.logger.Info(positionResult)
 			resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 				Status:       http.StatusOK,
 				PositionData: positionResult,
