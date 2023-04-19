@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	"main/internal/constants"
 	"main/internal/microservices/auth/utils/hash"
 	"main/internal/microservices/profile"
@@ -11,6 +12,7 @@ import (
 	"main/internal/microservices/profile/utils/images"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/gofrs/uuid"
 	"github.com/gomodule/redigo/redis"
 	"github.com/minio/minio-go/v7"
@@ -205,6 +207,10 @@ func (s Storage) AddLike(data *proto.LikeData) error {
 	sqlScript := "INSERT INTO user_position(id_user, id_position) VALUES($1, (SELECT id FROM position WHERE name = $2))"
 
 	if _, err := s.db.Exec(sqlScript, data.UserID, data.PositionName); err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+			return nil
+		}
 		return err
 	}
 
@@ -223,11 +229,11 @@ func (s Storage) RemoveLike(data *proto.LikeData) error {
 
 func (s Storage) GetFavorites(userID int64) ([]*proto.Favorite, error) {
 	sqlScript := "SELECT position.id, position.name, position.count_technologies, " +
-		"COUNT(ut.id_technology) AS count_finished FROM position " +
-		"JOIN user_position ON user_position.id_user = $1 AND user_position.id_position = position.id " +
-		"JOIN technology_position tp ON position.id = tp.id_position " +
-		"LEFT JOIN user_technology ut ON tp.id_technology = ut.id_technology " +
-		"GROUP BY position.id;"
+		"(SELECT COUNT(*) FROM user_technology JOIN technology_position tp " +
+		"ON user_technology.id_technology = tp.id_technology " +
+		"WHERE tp.name_position = position.name AND user_technology.id_user = $1) " +
+		"AS count_finished FROM user_position JOIN position " +
+		"ON user_position.id_position = position.id AND user_position.id_user = $1;"
 
 	favorites := make([]*proto.Favorite, 0)
 
