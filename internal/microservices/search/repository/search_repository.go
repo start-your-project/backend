@@ -32,10 +32,12 @@ func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, e
 
 	for rows.Next() {
 		var technology proto.Technology
+		var hardSkill sql.NullBool
 
-		if err = rows.Scan(&technology.Name, &technology.Distance, &technology.Professionalism, &technology.HardSkill); err != nil {
+		if err = rows.Scan(&technology.Name, &technology.Distance, &technology.Professionalism, &hardSkill); err != nil {
 			return nil, err
 		}
+		technology.HardSkill = hardSkill.Bool
 		technologies = append(technologies, &technology)
 	}
 
@@ -127,7 +129,7 @@ func (s Storage) GetPositions(data *proto.GetTechnology) ([]*proto.Position, err
 func (s Storage) GetTipsToLearn(data *proto.GetTechnology) (string, error) {
 	sqlScript := "SELECT tips_to_learn FROM technology WHERE name=$1"
 
-	var tipsToLearn string
+	var tipsToLearn sql.NullString
 
 	rows, err := s.db.Query(sqlScript, data.Name)
 	if err != nil {
@@ -144,5 +146,5 @@ func (s Storage) GetTipsToLearn(data *proto.GetTechnology) (string, error) {
 		}
 	}
 
-	return tipsToLearn, nil
+	return tipsToLearn.String, nil
 }
