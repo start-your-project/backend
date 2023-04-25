@@ -17,6 +17,7 @@ type PositionData struct {
 //easyjson:json
 type Profession struct {
 	Profession string `json:"profession"`
+	InBase     string `json:"in_base"`
 }
 
 //easyjson:json

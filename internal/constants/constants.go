@@ -26,6 +26,7 @@ const (
 	Finished               = "Finished"
 	Canceled               = "Canceled"
 	NoTechnologies         = "No technologies"
+	NotInBase              = "Profession is not in DB"
 )
 
 var (

@@ -496,7 +496,7 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 
 		req.CvText = pdf
 
-        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		resRole, err := http.Get(os.Getenv("HOST_SEARCH") + req.Role)
 		if err != nil {
 			return ctx.NoContent(http.StatusInternalServerError)
@@ -524,7 +524,10 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 			}
 		}
 
-		profession := &models.Profession{Profession: ""}
+		profession := &models.Profession{
+			Profession: "",
+			InBase:     "",
+		}
 		err = easyjson.Unmarshal([]byte(singleRequestForm), profession)
 		if err != nil {
 			p.logger.Error(
@@ -538,6 +541,20 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 				return ctx.NoContent(http.StatusInternalServerError)
 			}
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		if profession.InBase == "0" {
+			p.logger.Error(
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusNotAcceptable,
+				Message: constants.NotInBase,
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusNotAcceptable, resp)
 		}
 
 		req.Role = profession.Profession

@@ -572,6 +572,8 @@ func easyjsonD4176298DecodeMainInternalModels6(in *jlexer.Lexer, out *Profession
 		switch key {
 		case "profession":
 			out.Profession = string(in.String())
+		case "in_base":
+			out.InBase = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -590,6 +592,11 @@ func easyjsonD4176298EncodeMainInternalModels6(out *jwriter.Writer, in Professio
 		const prefix string = ",\"profession\":"
 		out.RawString(prefix[1:])
 		out.String(string(in.Profession))
+	}
+	{
+		const prefix string = ",\"in_base\":"
+		out.RawString(prefix)
+		out.String(string(in.InBase))
 	}
 	out.RawByte('}')
 }
