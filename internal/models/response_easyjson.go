@@ -131,7 +131,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels1(in *jlexer.Lexer, out *ResponseTo
 				in.Delim('[')
 				if out.Top == nil {
 					if !in.IsDelim(']') {
-						out.Top = make([]Profession, 0, 4)
+						out.Top = make([]Profession, 0, 2)
 					} else {
 						out.Top = []Profession{}
 					}
@@ -342,6 +342,8 @@ func easyjson6ff3ac1dDecodeMainInternalModels3(in *jlexer.Lexer, out *ResponseTe
 			out.Status = int(in.Int())
 		case "position_data":
 			(out.PositionData).UnmarshalEasyJSON(in)
+		case "in_base":
+			out.InBase = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -365,6 +367,11 @@ func easyjson6ff3ac1dEncodeMainInternalModels3(out *jwriter.Writer, in ResponseT
 		const prefix string = ",\"position_data\":"
 		out.RawString(prefix)
 		(in.PositionData).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"in_base\":"
+		out.RawString(prefix)
+		out.String(string(in.InBase))
 	}
 	out.RawByte('}')
 }
@@ -421,7 +428,7 @@ func easyjson6ff3ac1dDecodeMainInternalModels4(in *jlexer.Lexer, out *ResponseRe
 				in.Delim('[')
 				if out.Recommend == nil {
 					if !in.IsDelim(']') {
-						out.Recommend = make([]Recommend, 0, 0)
+						out.Recommend = make([]Recommend, 0, 1)
 					} else {
 						out.Recommend = []Recommend{}
 					}

@@ -150,6 +150,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 				resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 					Status:       http.StatusOK,
 					PositionData: positionResult,
+					InBase:       profession.InBase,
 				})
 				if errMarshal != nil {
 					return ctx.NoContent(http.StatusInternalServerError)
@@ -225,6 +226,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 				resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 					Status:       http.StatusOK,
 					PositionData: positionResult,
+					InBase:       profession.InBase,
 				})
 				if errMarshal != nil {
 					return ctx.NoContent(http.StatusInternalServerError)
@@ -296,6 +298,7 @@ func (a *searchHandler) GetTechnologies() echo.HandlerFunc {
 			resp, errMarshal := easyjson.Marshal(&models.ResponseTechnologies{
 				Status:       http.StatusOK,
 				PositionData: positionResult,
+				InBase:       profession.InBase,
 			})
 			if errMarshal != nil {
 				return ctx.NoContent(http.StatusInternalServerError)

@@ -8,6 +8,7 @@ type Response struct {
 type ResponseTechnologies struct {
 	Status       int          `json:"status"`
 	PositionData PositionData `json:"position_data"`
+	InBase       string       `json:"in_base"`
 }
 
 type ResponseUserProfile struct {
