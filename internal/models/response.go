@@ -55,3 +55,8 @@ type ResponseTechs struct {
 	Status int      `json:"status"`
 	Techs  []string `json:"techs"`
 }
+
+type ResponseCheck struct {
+	Status int  `json:"status"`
+	IsWork bool `json:"is_work"`
+}

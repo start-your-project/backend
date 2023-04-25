@@ -35,6 +35,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.POST(constants.Professions, a.Professions())
 	router.POST(constants.GetProfessions, a.GetProfessions())
 	router.GET(constants.GetTechSearch, a.TechSearch())
+	router.GET(constants.GetCheckLink, a.CheckLink())
 }
 
 // nolint:cyclop
@@ -676,6 +677,68 @@ func (a *searchHandler) TechSearch() echo.HandlerFunc {
 		resp, errMarshal := easyjson.Marshal(&models.ResponseTechs{
 			Status: http.StatusOK,
 			Techs:  techs.Techs,
+		})
+		if errMarshal != nil {
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+		return ctx.JSONBlob(http.StatusOK, resp)
+	}
+}
+
+func (a *searchHandler) CheckLink() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		requestID, ok := ctx.Get("REQUEST_ID").(string)
+		if !ok {
+			a.logger.Error(
+				zap.String("ERROR", constants.NoRequestID),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, err := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: constants.NoRequestID,
+			})
+			if err != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		link := models.Link{Link: ""}
+		a.logger.Info(link)
+		if err := ctx.Bind(&link); err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError),
+			)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		res, err := http.Get(link.Link)
+		if err == nil {
+			defer res.Body.Close()
+		}
+		if err != nil || res.StatusCode >= 300 {
+			resp, errMarshal := easyjson.Marshal(&models.ResponseCheck{
+				Status: http.StatusOK,
+				IsWork: false,
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusOK, resp)
+		}
+
+		resp, errMarshal := easyjson.Marshal(&models.ResponseCheck{
+			Status: http.StatusOK,
+			IsWork: true,
 		})
 		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)

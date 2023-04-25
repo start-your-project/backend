@@ -65,6 +65,7 @@ const (
 	FinishedURL     = "/api/v1/finished"
 	LetterURL       = "/api/v1/letter"
 	GetTechSearch   = "/api/v1/tech_search"
+	GetCheckLink    = "/api/v1/check"
 )
 
 var (

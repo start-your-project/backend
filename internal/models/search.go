@@ -45,3 +45,7 @@ type SearchTechs struct {
 type Techs struct {
 	Techs []string `json:"techs"`
 }
+
+type Link struct {
+	Link string `json:"link" form:"link"`
+}
