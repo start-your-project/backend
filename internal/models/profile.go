@@ -28,7 +28,7 @@ type Favorite struct {
 
 type Recommend struct {
 	Learned []string `json:"learned" form:"learned"`
-	ToLearn []string `json:"to learn" form:"to learn"`
+	ToLearn []string `json:"to_learn" form:"to_learn"`
 }
 
 type LinkDTO struct {

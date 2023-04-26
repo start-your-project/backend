@@ -59,7 +59,7 @@ func easyjson521a5691DecodeMainInternalModels(in *jlexer.Lexer, out *Recommend) 
 				}
 				in.Delim(']')
 			}
-		case "to learn":
+		case "to_learn":
 			if in.IsNull() {
 				in.Skip()
 				out.ToLearn = nil
@@ -113,7 +113,7 @@ func easyjson521a5691EncodeMainInternalModels(out *jwriter.Writer, in Recommend)
 		}
 	}
 	{
-		const prefix string = ",\"to learn\":"
+		const prefix string = ",\"to_learn\":"
 		out.RawString(prefix)
 		if in.ToLearn == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
