@@ -35,7 +35,7 @@ func (a *searchHandler) Register(router *echo.Echo) {
 	router.POST(constants.Professions, a.Professions())
 	router.POST(constants.GetProfessions, a.GetProfessions())
 	router.GET(constants.GetTechSearch, a.TechSearch())
-	router.GET(constants.GetCheckLink, a.CheckLink())
+	router.POST(constants.GetCheckLink, a.CheckLink())
 }
 
 // nolint:cyclop
