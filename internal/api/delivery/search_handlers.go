@@ -477,8 +477,6 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 		scanner.Scan()
 		respProfessions := scanner.Text()
 
-		a.logger.Info(respProfessions)
-
 		if res.Status != "200 OK" {
 			status := res.Status[:3]
 			statusInt, errAt := strconv.Atoi(status)
@@ -517,13 +515,12 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
-		a.logger.Info(professions)
 		techSlice := strings.Split(professions.Techs, ", ")
 		technologies := make([]*search.GetTechnology, 0)
 		for _, technology := range techSlice {
 			var technologyName search.GetTechnology
 			// nolint:staticcheck
-			technologyName.Name = strings.Title(technology)
+			technologyName.Name = technology
 			technologies = append(technologies, &technologyName)
 		}
 		data := &search.Technologies{Technology: technologies}

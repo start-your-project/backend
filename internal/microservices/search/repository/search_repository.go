@@ -154,7 +154,7 @@ func (s Storage) TechSearch(data *proto.Technologies) ([]*proto.TechSearchPositi
 	profs := make(map[string]float64, 0)
 
 	for _, val := range data.Technology {
-		sqlScript := "select name_position, distance from technology_position where name_technology = $1"
+		sqlScript := "select name_position, distance from technology_position where lower(name_technology) = lower($1)"
 		rows, err := s.db.Query(sqlScript, val.Name)
 		if err != nil {
 			log.Fatal(err)
@@ -169,7 +169,7 @@ func (s Storage) TechSearch(data *proto.Technologies) ([]*proto.TechSearchPositi
 			var profession string
 			var distance float64
 			if err = rows.Scan(&profession, &distance); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 
 			// nolint:gosimple
