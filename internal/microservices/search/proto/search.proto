@@ -38,10 +38,24 @@ message GetTechnology {
   string Name = 1;
 }
 
+message Technologies {
+   repeated GetTechnology Technology = 1;
+}
+
+message TechSearchPosition {
+  string Name = 1;
+  float Percent = 2;
+}
+
+message Positions {
+  repeated TechSearchPosition Positions = 1;
+}
+
 message Empty { }
 
 service Search {
   rpc GetTechnologies(SearchText) returns(TechnologiesArr) {}
   rpc GetTop(Empty) returns(PositionTop) {}
   rpc GetPositions(GetTechnology) returns(NodeInfo) {}
+  rpc TechSearch(Technologies) returns(Positions) {}
 }

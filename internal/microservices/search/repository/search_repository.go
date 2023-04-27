@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	proto "main/internal/microservices/search/proto"
+	"sort"
 )
 
 type Storage struct {
@@ -147,4 +148,52 @@ func (s Storage) GetTipsToLearn(data *proto.GetTechnology) (string, error) {
 	}
 
 	return tipsToLearn.String, nil
+}
+
+func (s Storage) TechSearch(data *proto.Technologies) ([]*proto.TechSearchPosition, error) {
+	profs := make(map[string]float64, 0)
+
+	for _, val := range data.Technology {
+		sqlScript := "select name_position, distance from technology_position where name_technology = $1"
+		rows, err := s.db.Query(sqlScript, val.Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer func() {
+			_ = rows.Err()
+			_ = rows.Close()
+		}()
+
+		for rows.Next() {
+			var profession string
+			var distance float64
+			if err = rows.Scan(&profession, &distance); err != nil {
+				log.Fatal(err)
+			}
+
+			_, _ = profs[profession]
+			profs[profession] += distance
+		}
+	}
+	keys := make([]string, 0, len(profs))
+
+	for key := range profs {
+		keys = append(keys, key)
+	}
+
+	sort.SliceStable(keys, func(i, j int) bool {
+		return profs[keys[i]] > profs[keys[j]]
+	})
+
+	res := make([]*proto.TechSearchPosition, 0)
+
+	for _, key := range keys {
+		res = append(res, &proto.TechSearchPosition{
+			Name:    key,
+			Percent: float32(profs[key] / float64(len(data.Technology))),
+		})
+	}
+
+	return res, nil
 }

@@ -7,10 +7,12 @@ import (
 	"main/internal/constants"
 	search "main/internal/microservices/search/proto"
 	"main/internal/models"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mailru/easyjson"
@@ -515,9 +517,47 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 
+		a.logger.Info(professions)
+		techSlice := strings.Split(professions.Techs, ", ")
+		technologies := make([]*search.GetTechnology, 0)
+		for _, technology := range techSlice {
+			var technologyName search.GetTechnology
+			technologyName.Name = strings.Title(technology)
+			technologies = append(technologies, &technologyName)
+		}
+		data := &search.Technologies{Technology: technologies}
+		positions, err := a.searchMicroservice.TechSearch(context.Background(), data)
+		if err != nil {
+			a.logger.Error(
+				zap.String("ID", requestID),
+				zap.String("ERROR", err.Error()),
+				zap.Int("ANSWER STATUS", http.StatusInternalServerError))
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
+		positionResult := models.RespProfessions{
+			Techs:      professions.Techs,
+			JobNumber:  len(positions.Positions),
+			Additional: make([]models.RespProfession, 0),
+		}
+
+		for _, prof := range positions.Positions {
+			positionResult.Additional = append(positionResult.Additional, models.RespProfession{
+				JobName: prof.Name,
+				Percent: int(math.Round(float64(prof.Percent) * 100)),
+			})
+		}
+
 		resp, errMarshal := easyjson.Marshal(&models.ResponseProfessionsWithTechnology{
 			Status:      http.StatusOK,
-			Professions: professions,
+			Professions: &positionResult,
 		})
 		if errMarshal != nil {
 			return ctx.NoContent(http.StatusInternalServerError)

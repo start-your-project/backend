@@ -64,3 +64,11 @@ func (s *Service) GetPositions(ctx context.Context, data *proto.GetTechnology) (
 	}, nil
 }
 
+func (s *Service) TechSearch(ctx context.Context, data *proto.Technologies) (*proto.Positions, error) {
+	positions, err := s.storage.TechSearch(data)
+	if err != nil {
+		return &proto.Positions{Positions: nil}, err
+	}
+
+	return &proto.Positions{Positions: positions}, nil
+}

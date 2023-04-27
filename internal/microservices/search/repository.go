@@ -8,4 +8,5 @@ type Storage interface {
 	GetTop() ([]*proto.Position, error)
 	GetPositions(data *proto.GetTechnology) ([]*proto.Position, error)
 	GetTipsToLearn(data *proto.GetTechnology) (string, error)
+	TechSearch(data *proto.Technologies) ([]*proto.TechSearchPosition, error)
 }
