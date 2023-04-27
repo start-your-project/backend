@@ -522,6 +522,7 @@ func (a *searchHandler) Professions() echo.HandlerFunc {
 		technologies := make([]*search.GetTechnology, 0)
 		for _, technology := range techSlice {
 			var technologyName search.GetTechnology
+			// nolint:staticcheck
 			technologyName.Name = strings.Title(technology)
 			technologies = append(technologies, &technologyName)
 		}

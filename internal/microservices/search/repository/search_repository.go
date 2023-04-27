@@ -172,6 +172,7 @@ func (s Storage) TechSearch(data *proto.Technologies) ([]*proto.TechSearchPositi
 				log.Fatal(err)
 			}
 
+			// nolint:gosimple
 			_, _ = profs[profession]
 			profs[profession] += distance
 		}
