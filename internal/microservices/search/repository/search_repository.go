@@ -16,7 +16,7 @@ func NewStorage(db *sql.DB) *Storage {
 }
 
 func (s Storage) GetTechnologies(data *proto.SearchText) ([]*proto.Technology, error) {
-	sqlScript := "SELECT name_technology, distance, professionalism, t.hard_skill " +
+	sqlScript := "SELECT name_technology, new_distance, new_professionalism, t.hard_skill " +
 		"FROM technology_position JOIN technology t ON " +
 		"t.id = technology_position.id_technology AND name_position=$1"
 
@@ -154,7 +154,7 @@ func (s Storage) TechSearch(data *proto.Technologies) ([]*proto.TechSearchPositi
 	profs := make(map[string]float64, 0)
 
 	for _, val := range data.Technology {
-		sqlScript := "select name_position, distance from technology_position where lower(name_technology) = lower($1)"
+		sqlScript := "select name_position, new_distance from technology_position where lower(name_technology) = lower($1)"
 		rows, err := s.db.Query(sqlScript, val.Name)
 		if err != nil {
 			log.Fatal(err)
