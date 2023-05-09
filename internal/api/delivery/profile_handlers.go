@@ -497,10 +497,35 @@ func (p *profileHandler) Resume() echo.HandlerFunc {
 		req.CvText = pdf
 
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		resRole, err := http.Get(os.Getenv("HOST_SEARCH") + req.Role)
+
+		client := &http.Client{}
+		request, err := http.NewRequest("GET", os.Getenv("HOST_SEARCH"), nil)
 		if err != nil {
-			return ctx.NoContent(http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
+		q := request.URL.Query()
+		q.Add("query", req.Role)
+		request.URL.RawQuery = q.Encode()
+		request.Header.Add("User-Agent", "Localhost 1.0") // добавляем заголовок User-Agent
+		resRole, err := client.Do(request)
+		if err != nil {
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
 		defer resRole.Body.Close()
 
 		scanner := bufio.NewScanner(resRole.Body)
