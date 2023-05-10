@@ -397,10 +397,35 @@ func (a *searchHandler) Recommendation() echo.HandlerFunc {
 		searchText := ctx.QueryParam("search_text")
 
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		res, err := http.Get(os.Getenv("HOST_RECOMMEND") + searchText)
+		client := &http.Client{}
+		request, err := http.NewRequest("GET", os.Getenv("HOST_RECOMMEND"), nil)
 		if err != nil {
-			return ctx.NoContent(http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
+
+		q := request.URL.Query()
+		q.Add("query", searchText)
+		request.URL.RawQuery = q.Encode()
+		request.Header.Add("User-Agent", "Localhost 1.0") // добавляем заголовок User-Agent
+		res, err := client.Do(request)
+		if err != nil {
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+
 		defer res.Body.Close()
 
 		scanner := bufio.NewScanner(res.Body)
@@ -683,9 +708,32 @@ func (a *searchHandler) TechSearch() echo.HandlerFunc {
 		searchText := ctx.QueryParam("search_text")
 
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		res, err := http.Get(os.Getenv("HOST_TECH") + searchText)
+		client := &http.Client{}
+		request, err := http.NewRequest("GET", os.Getenv("HOST_TECH"), nil)
 		if err != nil {
-			return ctx.NoContent(http.StatusInternalServerError)
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
+		}
+		q := request.URL.Query()
+		q.Add("query", searchText)
+		request.URL.RawQuery = q.Encode()
+		request.Header.Add("User-Agent", "Localhost 1.0") // добавляем заголовок User-Agent
+		res, err := client.Do(request)
+		if err != nil {
+			resp, errMarshal := easyjson.Marshal(&models.Response{
+				Status:  http.StatusInternalServerError,
+				Message: err.Error(),
+			})
+			if errMarshal != nil {
+				return ctx.NoContent(http.StatusInternalServerError)
+			}
+			return ctx.JSONBlob(http.StatusInternalServerError, resp)
 		}
 		defer res.Body.Close()
 
